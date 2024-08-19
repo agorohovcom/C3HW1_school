@@ -17,12 +17,12 @@ public class FacultyController {
         this.service = service;
     }
 
-    @PostMapping            // POST http://localhost:8080/faculty
+    @PostMapping                    // POST http://localhost:8080/faculty
     public Faculty createFaculty(Faculty faculty) {
         return service.createFaculty(faculty);
     }
 
-    @GetMapping("{id}")     // http://localhost:8080/faculty/1
+    @GetMapping("{id}")             // http://localhost:8080/faculty/1
     public ResponseEntity<Faculty> getFaculty(@PathVariable(value = "id") long facultyId) {
         Faculty faculty = service.findFaculty(facultyId);
         if (faculty == null) {
@@ -31,7 +31,7 @@ public class FacultyController {
         return ResponseEntity.ok(faculty);
     }
 
-    @PutMapping             // http://localhost:8080/faculty
+    @PutMapping                     // http://localhost:8080/faculty
     public ResponseEntity<Faculty> editFaculty(@RequestBody Faculty faculty) {
         Faculty foundFaculty = service.editFaculty(faculty);
         if (foundFaculty == null) {
@@ -40,13 +40,18 @@ public class FacultyController {
         return ResponseEntity.ok(foundFaculty);
     }
 
-    @DeleteMapping("{id}")  // http://localhost:8080/faculty/1
-    public Faculty deleteFaculty(@PathVariable(value = "id") long FacultyId) {
-        return service.deleteFaculty(FacultyId);
+    @DeleteMapping("{id}")          // http://localhost:8080/faculty/1
+    public Faculty deleteFaculty(@PathVariable(value = "id") long facultyId) {
+        return service.deleteFaculty(facultyId);
     }
 
-    @GetMapping             // http://localhost:8080/faculty
+    @GetMapping                     // http://localhost:8080/faculty
     public ResponseEntity<Collection<Faculty>> getAllFaculties() {
         return ResponseEntity.ok(service.getAllFaculties());
+    }
+
+    @GetMapping("color/{color}")    // http://localhost:8080/student/color/red
+    public ResponseEntity<Collection<Faculty>> getAllFacultiesByColor(@PathVariable(value = "color") String facultyColor) {
+        return ResponseEntity.ok(service.getAllFacultiesByColor(facultyColor));
     }
 }
