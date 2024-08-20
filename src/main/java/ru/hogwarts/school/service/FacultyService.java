@@ -4,54 +4,46 @@ import org.springframework.stereotype.Service;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repository.FacultyRepository;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
 
-    private final Map<Long, Faculty> faculties = new HashMap<>();
-    private long idCounter = 0;
+    private final FacultyRepository repository;
+
+    public FacultyService(FacultyRepository repository) {
+        this.repository = repository;
+    }
 
     public Faculty createFaculty(Faculty faculty) {
         notNullParameterChecker(faculty);
-        faculty.setId(++idCounter);
-        faculties.put(idCounter, faculty);
-        return faculty;
+        return repository.save(faculty);
     }
 
     public Faculty findFaculty(long facultyId) {
         idParameterChecker(facultyId);
-        return faculties.get(facultyId);
+        return repository.findById(facultyId).orElseGet(() -> null);
     }
 
     public Faculty editFaculty(Faculty faculty) {
         notNullParameterChecker(faculty);
-        if (faculties.containsKey(faculty.getId())) {
-            faculties.put(faculty.getId(), faculty);
-            return faculty;
-        }
-        return null;
+        return repository.save(faculty);
     }
 
-    public Faculty deleteFaculty(long facultyId) {
+    public void deleteFaculty(long facultyId) {
         idParameterChecker(facultyId);
-        return faculties.remove(facultyId);
+        repository.deleteById(facultyId);
     }
 
     public Collection<Faculty> getAllFaculties() {
-        return faculties.values();
+        return repository.findAll();
     }
 
     public Collection<Faculty> getAllFacultiesByColor(String facultyColor) {
         notNullParameterChecker(facultyColor);
-        return getAllFaculties()
-                .stream()
-                .filter(e -> e.getColor().equals(facultyColor))
-                .collect(Collectors.toList());
+        return repository.findAllByColor(facultyColor);
     }
 
     private void notNullParameterChecker(Object o) {
