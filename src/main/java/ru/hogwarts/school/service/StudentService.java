@@ -5,54 +5,46 @@ import ru.hogwarts.school.exception.IncorrectAgeException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
 
-    private final Map<Long, Student> students = new HashMap<>();
-    private long idCounter = 0;
+    private final StudentRepository repository;
+
+    public StudentService(StudentRepository repository) {
+        this.repository = repository;
+    }
 
     public Student createStudent(Student student) {
         notNullParameterChecker(student);
-        student.setId(++idCounter);
-        students.put(idCounter, student);
-        return student;
+        return repository.save(student);
     }
 
     public Student findStudent(long studentId) {
         idParameterChecker(studentId);
-        return students.get(studentId);
+        return repository.findById(studentId).orElseGet(() -> null);
     }
 
     public Student editStudent(Student student) {
         notNullParameterChecker(student);
-        if (students.containsKey(student.getId())) {
-            students.put(student.getId(), student);
-            return student;
-        }
-        return null;
+        return repository.save(student);
     }
 
-    public Student deleteStudent(long studentId) {
+    public void deleteStudent(long studentId) {
         idParameterChecker(studentId);
-        return students.remove(studentId);
+        repository.deleteById(studentId);
     }
 
     public Collection<Student> getAllStudents() {
-        return students.values();
+        return repository.findAll();
     }
 
     public Collection<Student> getAllStudentsByAge(int studentAge) {
         ageParameterChecker(studentAge);
-        return getAllStudents()
-                .stream()
-                .filter(e -> e.getAge() == studentAge)
-                .collect(Collectors.toList());
+        return repository.findAllByAge(studentAge);
     }
 
     private void notNullParameterChecker(Object o) {
