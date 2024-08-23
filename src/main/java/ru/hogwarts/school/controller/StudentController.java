@@ -51,8 +51,13 @@ public class StudentController {
         return ResponseEntity.ok(service.getAllStudents());
     }
 
-    @GetMapping("age/{age}")       // http://localhost:8080/student/age/18
+    @GetMapping("age/{age}")        // http://localhost:8080/student/age/18
     public ResponseEntity<Collection<Student>> getAllStudentsByAge(@PathVariable(value = "age") int studentAge) {
         return ResponseEntity.ok(service.getAllStudentsByAge(studentAge));
+    }
+
+    @GetMapping("age")              // http://localhost:8080/student/age
+    public ResponseEntity<Collection<Student>> findByAgeBetween(@RequestParam int min, @RequestParam int max) {
+        return ResponseEntity.ok(service.findByAgeBetween(min, max));
     }
 }

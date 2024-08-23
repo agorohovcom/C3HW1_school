@@ -47,6 +47,12 @@ public class StudentService {
         return repository.findAllByAge(studentAge);
     }
 
+    public Collection<Student> findByAgeBetween(int min, int max) {
+        ageParameterChecker(min);
+        ageParameterChecker(max);
+        return repository.findByAgeBetween(min, max);
+    }
+
     private void notNullParameterChecker(Object o) {
         if (o == null) {
             throw new ParameterIsNullException("Параметр не может быть null");

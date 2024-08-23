@@ -46,6 +46,12 @@ public class FacultyService {
         return repository.findAllByColor(facultyColor);
     }
 
+    public Collection<Faculty> getByNameOrColorIgnoreCase(String name, String color) {
+        notNullParameterChecker(name);
+        notNullParameterChecker(color);
+        return repository.getByNameOrColorIgnoreCase(name, color);
+    }
+
     private void notNullParameterChecker(Object o) {
         if (o == null) {
             throw new ParameterIsNullException("Параметр не может быть null");
