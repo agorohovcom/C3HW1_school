@@ -2,6 +2,7 @@ package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
 public class Faculty {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String color;
@@ -51,7 +52,9 @@ public class Faculty {
     }
 
     public Collection<Student> getStudents() {
-        return students;
+        return students == null
+                ? new ArrayList<>()
+                : students;
     }
 
     public void setStudents(Collection<Student> students) {

@@ -1,16 +1,26 @@
 package ru.hogwarts.school.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import ru.hogwarts.school.model.Student;
 
 import java.util.Objects;
 
+@JsonIgnoreProperties(value = {"facultyDto"})
 public class StudentDto {
 
     private Long id;
     private String name;
     private Integer age;
 
+    private FacultyDto facultyDto;
+
     public StudentDto() {
+    }
+
+    public StudentDto(Long id, String name, Integer age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
     }
 
     public static StudentDto toDto(Student student) {
@@ -24,14 +34,6 @@ public class StudentDto {
     public static Student toEntity(StudentDto dto) {
         Student student = new Student();
         student.setId(dto.getId());
-        student.setAge(dto.getAge());
-        student.setName(dto.getName());
-        return student;
-    }
-
-    public static Student toNewEntity(StudentDto dto) {
-        Student student = new Student();
-        student.setId(null);
         student.setAge(dto.getAge());
         student.setName(dto.getName());
         return student;
@@ -53,12 +55,20 @@ public class StudentDto {
         this.name = name;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
+    }
+
+    public FacultyDto getFacultyDto() {
+        return facultyDto;
+    }
+
+    public void setFacultyDto(FacultyDto facultyDto) {
+        this.facultyDto = facultyDto;
     }
 
     @Override
@@ -66,7 +76,7 @@ public class StudentDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StudentDto that = (StudentDto) o;
-        return age == that.age && Objects.equals(id, that.id) && Objects.equals(name, that.name);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(age, that.age);
     }
 
     @Override

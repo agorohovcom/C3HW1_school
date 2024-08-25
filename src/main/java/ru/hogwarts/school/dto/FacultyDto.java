@@ -1,12 +1,16 @@
 package ru.hogwarts.school.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@JsonIgnoreProperties(value = {"students"})
 public class FacultyDto {
 
     private Long id;
@@ -34,17 +38,15 @@ public class FacultyDto {
 
     public static Faculty toEntity(FacultyDto dto) {
         Faculty faculty = new Faculty();
+        List<Student> studentList = dto
+                .getStudents()
+                .stream()
+                .map(StudentDto::toEntity)
+                .toList();
         faculty.setId(dto.getId());
         faculty.setName(dto.getName());
         faculty.setColor(dto.getColor());
-        return faculty;
-    }
-
-    public static Faculty toNewEntity(FacultyDto dto) {
-        Faculty faculty = new Faculty();
-        faculty.setId(null);
-        faculty.setName(dto.getName());
-        faculty.setColor(dto.getColor());
+        faculty.setStudents(studentList);
         return faculty;
     }
 
@@ -73,7 +75,9 @@ public class FacultyDto {
     }
 
     public Collection<StudentDto> getStudents() {
-        return students;
+        return students == null
+                ? new ArrayList<>()
+                : students;
     }
 
     public void setStudents(Collection<StudentDto> students) {
@@ -85,12 +89,12 @@ public class FacultyDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FacultyDto that = (FacultyDto) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(color, that.color) && Objects.equals(students, that.students);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(color, that.color);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, color, students);
+        return Objects.hash(id, name, color);
     }
 
     @Override
