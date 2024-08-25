@@ -11,11 +11,8 @@ import java.util.Optional;
 @Repository
 public interface FacultyRepository extends JpaRepository<Faculty, Long> {
     Collection<Faculty> findAllByColorIgnoreCase(String facultyColor);
-
     Collection<Faculty> findByNameIgnoreCaseOrColorIgnoreCase(String name, String color);
-
     Optional<Faculty> findByNameIgnoreCase(String facultyName);
-
     @Query(value = "SELECT * FROM faculty ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
     Optional<Faculty> findRandom();
 }

@@ -23,7 +23,7 @@ public class StudentController {
         return new ResponseEntity<>(service.createWithRandomFaculty(studentDto), HttpStatus.OK);
     }
 
-    @PostMapping("create_manually")   // POST http://localhost:8080/student/create_manually
+    @PostMapping("create_manually")         // POST http://localhost:8080/student/create_manually
     public ResponseEntity<StudentDto> createStudent(
             @RequestParam String name,
             @RequestParam int age,

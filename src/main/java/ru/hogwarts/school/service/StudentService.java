@@ -7,6 +7,7 @@ import ru.hogwarts.school.exception.IncorrectAgeException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
@@ -29,15 +30,19 @@ public class StudentService {
         notNullParameterChecker(studentDto);
         notNullParameterChecker(facultyName);
         FacultyDto facultyDto = facultyService.findByName(facultyName);
-        studentDto.setFacultyDto(facultyDto);
-        return StudentDto.toDto(repository.save(StudentDto.toEntity(studentDto)));
+        Faculty faculty = FacultyDto.toEntity(facultyDto);
+        Student student = StudentDto.toEntity(studentDto);
+        student.setFaculty(faculty);
+        return StudentDto.toDto(repository.save(student));
     }
 
     public StudentDto createWithRandomFaculty(StudentDto studentDto) {
         notNullParameterChecker(studentDto);
         FacultyDto facultyDto = facultyService.findRandom();
-        studentDto.setFacultyDto(facultyDto);
-        return StudentDto.toDto(repository.save(StudentDto.toEntity(studentDto)));
+        Faculty faculty = FacultyDto.toEntity(facultyDto);
+        Student student = StudentDto.toEntity(studentDto);
+        student.setFaculty(faculty);
+        return StudentDto.toDto(repository.save(student));
     }
 
     public StudentDto findById(long studentId) {

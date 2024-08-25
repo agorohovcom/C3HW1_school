@@ -73,6 +73,7 @@ public class FacultyService {
     }
 
     public FacultyDto findByName(String facultyName) {
+        notNullParameterChecker(facultyName);
         return repository.findByNameIgnoreCase(facultyName)
                 .map(FacultyDto::toDto)
                 .orElseThrow(() -> new FacultyNotFoundException("Факультет с именем \"" + facultyName + "\" не найден"));

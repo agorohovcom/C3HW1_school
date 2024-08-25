@@ -36,6 +36,7 @@ public class StudentDto {
         student.setId(dto.getId());
         student.setAge(dto.getAge());
         student.setName(dto.getName());
+//        student.setFaculty(FacultyDto.toEntity(dto.getFacultyDto()));
         return student;
     }
 
