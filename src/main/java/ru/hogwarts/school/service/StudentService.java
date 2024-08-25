@@ -1,13 +1,15 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.exception.IncorrectAgeException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
-import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -18,19 +20,22 @@ public class StudentService {
         this.repository = repository;
     }
 
-    public Student createStudent(Student student) {
-        notNullParameterChecker(student);
-        return repository.save(student);
+    public StudentDto createStudent(StudentDto studentDto) {
+        notNullParameterChecker(studentDto);
+        return StudentDto.toDto(repository.save(StudentDto.toNewEntity(studentDto)));
     }
 
-    public Student findStudent(long studentId) {
+    public StudentDto findStudent(long studentId) {
         idParameterChecker(studentId);
-        return repository.findById(studentId).orElseGet(() -> null);
+        return repository
+                .findById(studentId)
+                .map(StudentDto::toDto)
+                .orElse(null);
     }
 
-    public Student editStudent(Student student) {
-        notNullParameterChecker(student);
-        return repository.save(student);
+    public StudentDto editStudent(StudentDto studentDto) {
+        notNullParameterChecker(studentDto);
+        return StudentDto.toDto(repository.save(StudentDto.toEntity(studentDto)));
     }
 
     public void deleteStudent(long studentId) {
@@ -38,19 +43,31 @@ public class StudentService {
         repository.deleteById(studentId);
     }
 
-    public Collection<Student> getAllStudents() {
-        return repository.findAll();
+    public Collection<StudentDto> getAllStudents() {
+        return repository
+                .findAll()
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public Collection<Student> getAllStudentsByAge(int studentAge) {
+    public Collection<StudentDto> getAllStudentsByAge(int studentAge) {
         ageParameterChecker(studentAge);
-        return repository.findAllByAge(studentAge);
+        return repository
+                .findAllByAge(studentAge)
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public Collection<Student> findByAgeBetween(int min, int max) {
+    public Collection<StudentDto> findByAgeBetween(int min, int max) {
         ageParameterChecker(min);
         ageParameterChecker(max);
-        return repository.findByAgeBetween(min, max);
+        return repository
+                .findByAgeBetween(min, max)
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void notNullParameterChecker(Object o) {

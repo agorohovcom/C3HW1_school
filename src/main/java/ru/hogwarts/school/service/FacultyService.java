@@ -4,10 +4,11 @@ import org.springframework.stereotype.Service;
 import ru.hogwarts.school.dto.FacultyDto;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
-import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
@@ -18,9 +19,9 @@ public class FacultyService {
         this.repository = repository;
     }
 
-    public Faculty createFaculty(Faculty faculty) {
-        notNullParameterChecker(faculty);
-        return repository.save(faculty);
+    public FacultyDto createFaculty(FacultyDto facultyDto) {
+        notNullParameterChecker(facultyDto);
+        return FacultyDto.toDto(repository.save(FacultyDto.toNewEntity(facultyDto)));
     }
 
     public FacultyDto findFaculty(long facultyId) {
@@ -31,9 +32,9 @@ public class FacultyService {
                 .orElse(null);
     }
 
-    public Faculty editFaculty(Faculty faculty) {
-        notNullParameterChecker(faculty);
-        return repository.save(faculty);
+    public FacultyDto editFaculty(FacultyDto facultyDto) {
+        notNullParameterChecker(facultyDto);
+        return FacultyDto.toDto(repository.save(FacultyDto.toEntity(facultyDto)));
     }
 
     public void deleteFaculty(long facultyId) {
@@ -41,19 +42,29 @@ public class FacultyService {
         repository.deleteById(facultyId);
     }
 
-    public Collection<Faculty> getAllFaculties() {
-        return repository.findAll();
+    public Collection<FacultyDto> getAllFaculties() {
+        return repository
+                .findAll()
+                .stream()
+                .map(FacultyDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public Collection<Faculty> getAllFacultiesByColor(String facultyColor) {
+    public Collection<FacultyDto> getAllFacultiesByColor(String facultyColor) {
         notNullParameterChecker(facultyColor);
-        return repository.findAllByColor(facultyColor);
+        return repository.findAllByColor(facultyColor)
+                .stream()
+                .map(FacultyDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public Collection<Faculty> getByNameOrColorIgnoreCase(String name, String color) {
+    public Collection<FacultyDto> getByNameOrColorIgnoreCase(String name, String color) {
         notNullParameterChecker(name);
         notNullParameterChecker(color);
-        return repository.getByNameOrColorIgnoreCase(name, color);
+        return repository.findByNameOrColorIgnoreCase(name, color)
+                .stream()
+                .map(FacultyDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void notNullParameterChecker(Object o) {

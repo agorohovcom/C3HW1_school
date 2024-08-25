@@ -32,6 +32,22 @@ public class FacultyDto {
         return dto;
     }
 
+    public static Faculty toEntity(FacultyDto dto) {
+        Faculty faculty = new Faculty();
+        faculty.setId(dto.getId());
+        faculty.setName(dto.getName());
+        faculty.setColor(dto.getColor());
+        return faculty;
+    }
+
+    public static Faculty toNewEntity(FacultyDto dto) {
+        Faculty faculty = new Faculty();
+        faculty.setId(null);
+        faculty.setName(dto.getName());
+        faculty.setColor(dto.getColor());
+        return faculty;
+    }
+
     public Long getId() {
         return id;
     }

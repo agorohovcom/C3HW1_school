@@ -8,7 +8,7 @@ public class StudentDto {
 
     private Long id;
     private String name;
-    private int age;
+    private Integer age;
 
     public StudentDto() {
     }
@@ -19,6 +19,22 @@ public class StudentDto {
         studentDto.setAge(student.getAge());
         studentDto.setName(student.getName());
         return studentDto;
+    }
+
+    public static Student toEntity(StudentDto dto) {
+        Student student = new Student();
+        student.setId(dto.getId());
+        student.setAge(dto.getAge());
+        student.setName(dto.getName());
+        return student;
+    }
+
+    public static Student toNewEntity(StudentDto dto) {
+        Student student = new Student();
+        student.setId(null);
+        student.setAge(dto.getAge());
+        student.setName(dto.getName());
+        return student;
     }
 
     public Long getId() {
