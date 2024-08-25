@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.dto.FacultyDto;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.model.Faculty;
@@ -22,9 +23,12 @@ public class FacultyService {
         return repository.save(faculty);
     }
 
-    public Faculty findFaculty(long facultyId) {
+    public FacultyDto findFaculty(long facultyId) {
         idParameterChecker(facultyId);
-        return repository.findById(facultyId).orElseGet(() -> null);
+        return repository
+                .findById(facultyId)
+                .map(FacultyDto::toDto)
+                .orElse(null);
     }
 
     public Faculty editFaculty(Faculty faculty) {
