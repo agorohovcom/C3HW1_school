@@ -2,11 +2,9 @@ package ru.hogwarts.school.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -34,26 +32,29 @@ public class FacultyDto {
         dto.setId(faculty.getId());
         dto.setName(faculty.getName());
         dto.setColor(faculty.getColor());
-        dto.setStudents(
-                faculty.getStudents()
-                        .stream()
-                        .map(StudentDto::toDto)
-                        .collect(Collectors.toCollection(ArrayList::new))
-        );
+        if (faculty.getStudents() != null) {
+            dto.setStudents(faculty
+                    .getStudents()
+                    .stream()
+                    .map(StudentDto::toDto)
+                    .collect(Collectors.toCollection(ArrayList::new))
+            );
+        }
         return dto;
     }
 
     public static Faculty toEntity(FacultyDto dto) {
         Faculty faculty = new Faculty();
-        List<Student> studentList = dto
-                .getStudents()
-                .stream()
-                .map(StudentDto::toEntity)
-                .toList();
         faculty.setId(dto.getId());
         faculty.setName(dto.getName());
         faculty.setColor(dto.getColor());
-        faculty.setStudents(studentList);
+        if (dto.getStudents() != null) {
+            faculty.setStudents(dto
+                    .getStudents()
+                    .stream()
+                    .map(StudentDto::toEntity)
+                    .toList());
+        }
         return faculty;
     }
 
