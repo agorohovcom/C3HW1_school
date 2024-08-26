@@ -2,6 +2,7 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.dto.FacultyDto;
+import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
@@ -57,7 +58,8 @@ public class FacultyService {
 
     public Collection<FacultyDto> getAllByColor(String facultyColor) {
         notNullParameterChecker(facultyColor);
-        return repository.findAllByColorIgnoreCase(facultyColor)
+        return repository
+                .findAllByColorIgnoreCase(facultyColor)
                 .stream()
                 .map(FacultyDto::toDto)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -66,7 +68,8 @@ public class FacultyService {
     public Collection<FacultyDto> getByNameOrColorIgnoreCase(String name, String color) {
         notNullParameterChecker(name);
         notNullParameterChecker(color);
-        return repository.findByNameIgnoreCaseOrColorIgnoreCase(name, color)
+        return repository
+                .findByNameIgnoreCaseOrColorIgnoreCase(name, color)
                 .stream()
                 .map(FacultyDto::toDto)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -74,9 +77,15 @@ public class FacultyService {
 
     public FacultyDto findByName(String facultyName) {
         notNullParameterChecker(facultyName);
-        return repository.findByNameIgnoreCase(facultyName)
+        return repository
+                .findByNameIgnoreCase(facultyName)
                 .map(FacultyDto::toDto)
                 .orElseThrow(() -> new FacultyNotFoundException("Факультет с именем \"" + facultyName + "\" не найден"));
+    }
+
+    public Collection<StudentDto> findStudentsByFacultyId(String facultyName) {
+        FacultyDto facultyDto = findByName(facultyName);
+        return facultyDto.getStudents();
     }
 
     public FacultyDto findRandom() {

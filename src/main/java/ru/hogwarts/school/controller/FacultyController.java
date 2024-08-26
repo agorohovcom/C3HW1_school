@@ -3,6 +3,7 @@ package ru.hogwarts.school.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.dto.FacultyDto;
+import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
@@ -59,5 +60,10 @@ public class FacultyController {
     @GetMapping("search")           // http://localhost:8080/student/search
     public ResponseEntity<Collection<FacultyDto>> getByNameOrColorIgnoreCase(@RequestParam String name, @RequestParam String color) {
         return ResponseEntity.ok(service.getByNameOrColorIgnoreCase(name, color));
+    }
+
+    @GetMapping("students")         // http://localhost:8080/student/students
+    public ResponseEntity<Collection<StudentDto>> findStudentsByFacultyId(@RequestParam String facultyName) {
+        return ResponseEntity.ok(service.findStudentsByFacultyId(facultyName));
     }
 }
