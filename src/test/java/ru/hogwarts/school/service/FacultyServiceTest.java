@@ -5,12 +5,16 @@
 //import org.mockito.InjectMocks;
 //import org.mockito.Mock;
 //import org.mockito.junit.jupiter.MockitoExtension;
+//import ru.hogwarts.school.dto.FacultyDto;
 //import ru.hogwarts.school.exception.IncorrectIdException;
 //import ru.hogwarts.school.exception.ParameterIsNullException;
 //import ru.hogwarts.school.model.Faculty;
 //import ru.hogwarts.school.repository.FacultyRepository;
 //
+//import java.util.List;
+//
 //import static org.junit.jupiter.api.Assertions.assertThrows;
+//import static org.mockito.ArgumentMatchers.any;
 //import static org.mockito.Mockito.times;
 //import static org.mockito.Mockito.verify;
 //
@@ -25,10 +29,11 @@
 //
 //    @Test
 //    void shouldCreateFacultyCorrectly() {
-//        Faculty expected = new Faculty(null, "Physteh", "purple");
-//        out.createFaculty(expected);
-//        verify(repositoryMock, times(1)).save(expected);
-//        assertThrows(ParameterIsNullException.class, () -> out.createFaculty(null));
+////        FacultyDto expected = new FacultyDto(null, "Physteh", "purple", List.of());
+//        Faculty faculty = new Faculty(1L, "drgerg", "sefgwerg");
+////        out.create(expected);
+//        verify(repositoryMock, times(1)).save(faculty);
+//        assertThrows(ParameterIsNullException.class, () -> out.create(null));
 //    }
 //
 //    @Test

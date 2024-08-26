@@ -19,6 +19,13 @@ public class FacultyDto {
 
     private Collection<StudentDto> students;
 
+    public FacultyDto(Long id, String name, String color, Collection<StudentDto> students) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.students = students;
+    }
+
     public FacultyDto() {
     }
 
