@@ -1,50 +1,101 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.dto.FacultyDto;
+import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.exception.IncorrectAgeException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
+import ru.hogwarts.school.exception.StudentNotFoundException;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
 
     private final StudentRepository repository;
+    private final FacultyService facultyService;
 
-    public StudentService(StudentRepository repository) {
+    public StudentService(StudentRepository repository, FacultyService facultyService) {
         this.repository = repository;
+        this.facultyService = facultyService;
     }
 
-    public Student createStudent(Student student) {
-        notNullParameterChecker(student);
-        return repository.save(student);
+    public StudentDto create(StudentDto studentDto, String facultyName) {
+        notNullParameterChecker(studentDto);
+        notNullParameterChecker(facultyName);
+        FacultyDto facultyDto = facultyService.findByName(facultyName);
+        Faculty faculty = FacultyDto.toEntity(facultyDto);
+        Student student = StudentDto.toEntity(studentDto);
+        student.setFaculty(faculty);
+        return StudentDto.toDto(repository.save(student));
     }
 
-    public Student findStudent(long studentId) {
+    public StudentDto createWithRandomFaculty(StudentDto studentDto) {
+        notNullParameterChecker(studentDto);
+        FacultyDto facultyDto = facultyService.findRandom();
+        Faculty faculty = FacultyDto.toEntity(facultyDto);
+        Student student = StudentDto.toEntity(studentDto);
+        student.setFaculty(faculty);
+        return StudentDto.toDto(repository.save(student));
+    }
+
+    public StudentDto findById(long studentId) {
         idParameterChecker(studentId);
-        return repository.findById(studentId).orElseGet(() -> null);
+        return repository
+                .findById(studentId)
+                .map(StudentDto::toDto)
+                .orElseThrow(() -> new StudentNotFoundException("Студент с id " + studentId + " не найден"));
     }
 
-    public Student editStudent(Student student) {
-        notNullParameterChecker(student);
-        return repository.save(student);
+    public StudentDto edit(StudentDto studentDto) {
+        notNullParameterChecker(studentDto);
+        findById(studentDto.getId()); // чтобы если с таким id нет, выдавало ошибку, а не создавало нового
+        return StudentDto.toDto(repository.save(StudentDto.toEntity(studentDto)));
     }
 
-    public void deleteStudent(long studentId) {
+    public void delete(long studentId) {
         idParameterChecker(studentId);
+        findById(studentId); // чтобы если с таким id нет, выдавало ошибку, а не возвращало 200
         repository.deleteById(studentId);
     }
 
-    public Collection<Student> getAllStudents() {
-        return repository.findAll();
+    public Collection<StudentDto> getAll() {
+        return repository
+                .findAll()
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public Collection<Student> getAllStudentsByAge(int studentAge) {
+    public Collection<StudentDto> getAllByAge(int studentAge) {
         ageParameterChecker(studentAge);
-        return repository.findAllByAge(studentAge);
+        return repository
+                .findAllByAge(studentAge)
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public Collection<StudentDto> findByAgeBetween(int min, int max) {
+        ageParameterChecker(min);
+        ageParameterChecker(max);
+        return repository
+                .findByAgeBetween(min, max)
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public FacultyDto findFacultyByStudentId(long studentId) {
+        idParameterChecker(studentId);
+        Student student = repository.findById(studentId).orElseThrow(() -> new StudentNotFoundException("Студент с id " + studentId + " не найден"));
+        return FacultyDto.toDto(student.getFaculty());
     }
 
     private void notNullParameterChecker(Object o) {

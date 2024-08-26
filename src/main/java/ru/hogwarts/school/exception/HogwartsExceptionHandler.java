@@ -10,7 +10,9 @@ public class HogwartsExceptionHandler {
     @ExceptionHandler({
             IncorrectAgeException.class,
             IncorrectIdException.class,
-            ParameterIsNullException.class
+            ParameterIsNullException.class,
+            StudentNotFoundException.class,
+            FacultyNotFoundException.class
     })
     public ResponseEntity<String> handleHogwartsExceptions(RuntimeException re) {
         re.printStackTrace();
