@@ -83,7 +83,8 @@ public class FacultyService {
                 .orElseThrow(() -> new FacultyNotFoundException("Факультет с именем \"" + facultyName + "\" не найден"));
     }
 
-    public Collection<StudentDto> findStudentsByFacultyId(String facultyName) {
+    public Collection<StudentDto> findStudentsByFacultyName(String facultyName) {
+        notNullParameterChecker(facultyName);
         FacultyDto facultyDto = findByName(facultyName);
         return facultyDto.getStudents();
     }

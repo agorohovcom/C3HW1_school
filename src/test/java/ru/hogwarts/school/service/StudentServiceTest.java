@@ -33,7 +33,7 @@ class StudentServiceTest {
     @Mock
     private StudentRepository studentRepositoryMock;
     @Mock
-    FacultyService facultyServiceMock;
+    private FacultyService facultyServiceMock;
 
     private StudentDto studentDto;
     private FacultyDto facultyDto;

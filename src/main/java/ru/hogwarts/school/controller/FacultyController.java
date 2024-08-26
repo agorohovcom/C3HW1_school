@@ -64,6 +64,6 @@ public class FacultyController {
 
     @GetMapping("students")         // http://localhost:8080/student/students
     public ResponseEntity<Collection<StudentDto>> findStudentsByFacultyId(@RequestParam String facultyName) {
-        return ResponseEntity.ok(service.findStudentsByFacultyId(facultyName));
+        return ResponseEntity.ok(service.findStudentsByFacultyName(facultyName));
     }
 }
