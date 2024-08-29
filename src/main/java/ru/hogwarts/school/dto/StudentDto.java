@@ -25,7 +25,7 @@ public class StudentDto {
 
     public static StudentDto toDto(Student student) {
         StudentDto studentDto = new StudentDto();
-        if (studentDto.getId() != null) {
+        if (student.getId() != null) {
             studentDto.setId(student.getId());
         }
         studentDto.setAge(student.getAge());
