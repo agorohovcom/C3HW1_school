@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.dto.AvatarDto;
 import ru.hogwarts.school.dto.StudentDto;
+import ru.hogwarts.school.exception.AvatarNotFoundException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.repository.AvatarRepository;
 
@@ -30,12 +31,12 @@ public class AvatarService {
     }
 
     public AvatarDto find(long id) {
-        return AvatarDto.toDto(repository.findById(id).orElse(new Avatar()));
+        return AvatarDto.toDto(repository.findById(id)
+                .orElseThrow(() -> new AvatarNotFoundException("Аватар с id " + id + " не найден")));
     }
 
     public AvatarDto findByStudentId(long studentId) {
         return AvatarDto.toDto(repository.findByStudentId(studentId)
-//                .orElseThrow(() -> new AvatarNotFoundException("Аватар с student_id " + studentId + " не найден")));
                 .orElse(new Avatar()));
     }
 
