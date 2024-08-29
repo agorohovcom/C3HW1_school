@@ -20,13 +20,17 @@ public class AvatarDto {
         avatarDto.setFileSize(avatar.getFileSize());
         avatarDto.setMediaType(avatar.getMediaType());
         avatarDto.setData(avatar.getData());
-        avatarDto.setStudentDto(StudentDto.toDto(avatar.getStudent()));
+        if (avatar.getStudent() != null) {
+            avatarDto.setStudentDto(StudentDto.toDto(avatar.getStudent()));
+        }
         return avatarDto;
     }
 
     public static Avatar toEntity(AvatarDto dto) {
         Avatar avatar = new Avatar();
-        avatar.setId(dto.getId());
+        if (dto.id != null) {
+            avatar.setId(dto.getId());
+        }
         avatar.setFilePath(dto.getFilePath());
         avatar.setFileSize(dto.getFileSize());
         avatar.setMediaType(dto.getMediaType());
