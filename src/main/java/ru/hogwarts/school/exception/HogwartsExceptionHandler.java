@@ -12,7 +12,8 @@ public class HogwartsExceptionHandler {
             IncorrectIdException.class,
             ParameterIsNullException.class,
             StudentNotFoundException.class,
-            FacultyNotFoundException.class
+            FacultyNotFoundException.class,
+            AvatarNotFoundException.class
     })
     public ResponseEntity<String> handleHogwartsExceptions(RuntimeException re) {
         re.printStackTrace();
