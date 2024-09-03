@@ -2,6 +2,7 @@ package ru.hogwarts.school.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +40,8 @@ public class FacultyDto {
                     .map(StudentDto::toDto)
                     .collect(Collectors.toCollection(ArrayList::new))
             );
+        } else {
+            dto.setStudents(new ArrayList<StudentDto>());
         }
         return dto;
     }
@@ -54,6 +57,8 @@ public class FacultyDto {
                     .stream()
                     .map(StudentDto::toEntity)
                     .toList());
+        } else {
+            faculty.setStudents(new ArrayList<Student>());
         }
         return faculty;
     }

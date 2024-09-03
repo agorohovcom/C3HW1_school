@@ -30,6 +30,11 @@ public class StudentDto {
         }
         studentDto.setAge(student.getAge());
         studentDto.setName(student.getName());
+//        if(student.getFaculty() != null) {
+//            Faculty faculty = student.getFaculty();
+//            FacultyDto facultyDto = FacultyDto.toDto(faculty);
+//            studentDto.setFacultyDto(facultyDto);
+//        }
         return studentDto;
     }
 
@@ -38,6 +43,11 @@ public class StudentDto {
         student.setId(dto.getId());
         student.setAge(dto.getAge());
         student.setName(dto.getName());
+//        if (dto.getFacultyDto() != null) {
+//            FacultyDto facultyDto = dto.getFacultyDto();
+//            Faculty faculty = FacultyDto.toEntity(facultyDto);
+//            student.setFaculty(faculty);
+//        }
         return student;
     }
 

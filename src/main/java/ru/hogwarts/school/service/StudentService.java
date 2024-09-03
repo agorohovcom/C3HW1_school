@@ -56,7 +56,8 @@ public class StudentService {
     public StudentDto edit(StudentDto studentDto) {
         notNullParameterChecker(studentDto);
         findById(studentDto.getId()); // чтобы если с таким id нет, выдавало ошибку, а не создавало нового
-        return StudentDto.toDto(repository.save(StudentDto.toEntity(studentDto)));
+        repository.save(StudentDto.toEntity(studentDto));
+        return studentDto;
     }
 
     public void delete(long studentId) {

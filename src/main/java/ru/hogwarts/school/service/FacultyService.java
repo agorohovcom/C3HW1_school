@@ -31,7 +31,8 @@ public class FacultyService {
     public FacultyDto find(long facultyId) {
         idParameterChecker(facultyId);
         return repository
-                .findById(facultyId)
+//                .findById(facultyId)
+                .findByIdWithStudents(facultyId)
                 .map(FacultyDto::toDto)
                 .orElseThrow(() -> new FacultyNotFoundException("Нет факультета с id \"" + facultyId + "\""));
     }
