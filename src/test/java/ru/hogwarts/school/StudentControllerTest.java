@@ -157,28 +157,6 @@ class StudentControllerTest {
         studentController.edit(oldStudentDto);
     }
 
-    // вариант из шпаргалки
-//    @Test
-//    void getAllTest() throws Exception {
-//        Assertions
-//                .assertThat(restTemplate.getForObject("http://localhost:" + port + "/student", String.class))
-//                .isNotNull();
-//    }
-
-    @Test
-    void getAllTest() throws Exception {
-        ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
-                "http://localhost:" + port + "/student",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<Collection<StudentDto>>() {
-                }
-        );
-
-        Assertions.assertThat(response.getBody()).isNotNull();
-        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
     @Test
     void deleteTest() throws Exception {
         // Добавляем студента для удаления
@@ -204,5 +182,42 @@ class StudentControllerTest {
 
         // Проверяем результат
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    // вариант из шпаргалки
+//    @Test
+//    void getAllTest() throws Exception {
+//        Assertions
+//                .assertThat(restTemplate.getForObject("http://localhost:" + port + "/student", String.class))
+//                .isNotNull();
+//    }
+
+    @Test
+    void getAllTest() throws Exception {
+        ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<StudentDto>>() {
+                }
+        );
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void getAllByAgeTest() throws Exception {
+
+    }
+
+    @Test
+    void findByAgeBetweenTest() throws Exception {
+
+    }
+
+    @Test
+    void getFacultyByStudentIdTest() throws Exception {
+
     }
 }
