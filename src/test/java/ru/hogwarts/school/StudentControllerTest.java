@@ -9,8 +9,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.dto.StudentDto;
-import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.repository.StudentRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class StudentControllerTest {
@@ -20,9 +18,6 @@ class StudentControllerTest {
 
     @Autowired
     private StudentController studentController;
-
-    @Autowired
-    private StudentRepository studentRepository;
 
     @Autowired
     TestRestTemplate restTemplate;
@@ -139,7 +134,7 @@ class StudentControllerTest {
         HttpEntity<StudentDto> requestEntity = new HttpEntity<>(studentDto, headers);
 
         // сохраняем реальную запись, чтобы восстановить её после теста
-        Student oldStudent = studentRepository.findById(id).get();
+        StudentDto oldStudentDto = studentController.get(id).getBody();
 
         // Выполняем PUT-запрос
         ResponseEntity<StudentDto> response = restTemplate.exchange(
@@ -156,6 +151,6 @@ class StudentControllerTest {
         Assertions.assertThat(response.getBody().getName()).isEqualTo(name);
 
         // Возвращаем старую запись на место
-        studentRepository.save(oldStudent);
+        studentController.edit(oldStudentDto);
     }
 }

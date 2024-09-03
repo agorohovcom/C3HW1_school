@@ -56,7 +56,9 @@ public class StudentService {
     public StudentDto edit(StudentDto studentDto) {
         notNullParameterChecker(studentDto);
         findById(studentDto.getId()); // чтобы если с таким id нет, выдавало ошибку, а не создавало нового
-        repository.save(StudentDto.toEntity(studentDto));
+        Student student = StudentDto.toEntity(studentDto);
+        student.setFaculty(FacultyDto.toEntity(findFacultyByStudentId(studentDto.getId())));
+        repository.save(student);
         return studentDto;
     }
 
