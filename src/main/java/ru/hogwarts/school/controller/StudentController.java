@@ -19,18 +19,18 @@ public class StudentController {
         this.service = service;
     }
 
-    @PostMapping("create_with_random_faculty")                          // POST http://localhost:8080/student/create
+    @PostMapping("create_with_random_faculty")      // POST http://localhost:8080/student/create_with_random_faculty
     public ResponseEntity<StudentDto> createWithRandomFaculty(@RequestBody StudentDto studentDto) {
-        return new ResponseEntity<>(service.createWithRandomFaculty(studentDto), HttpStatus.OK);
+        return new ResponseEntity<>(service.createWithRandomFaculty(studentDto), HttpStatus.CREATED);
     }
 
-    @PostMapping("create_manually")         // POST http://localhost:8080/student/create_manually
-    public ResponseEntity<StudentDto> createManually(
+    @PostMapping("create")         // POST http://localhost:8080/student/create
+    public ResponseEntity<StudentDto> create(
             @RequestParam String name,
             @RequestParam int age,
             @RequestParam String facultyName) {
         StudentDto studentDto = new StudentDto(null, name, age);
-        return new ResponseEntity<>(service.create(studentDto, facultyName), HttpStatus.OK);
+        return new ResponseEntity<>(service.create(studentDto, facultyName), HttpStatus.CREATED);
     }
 
     @GetMapping("{id}")                      // http://localhost:8080/student/1
