@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.dto.StudentDto;
+
+import java.util.Collection;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class StudentControllerTest {
@@ -120,7 +123,7 @@ class StudentControllerTest {
     void editTest() throws Exception {
         // указываем id реально существующего в БД студента
         long id = 3L;
-        String name = "Svreta Zvezda M Test";
+        String name = "Sveta Testovaya Podruga";
         int age = 38;
 
         StudentDto studentDto = new StudentDto();
@@ -152,5 +155,54 @@ class StudentControllerTest {
 
         // Возвращаем старую запись на место
         studentController.edit(oldStudentDto);
+    }
+
+    // вариант из шпаргалки
+//    @Test
+//    void getAllTest() throws Exception {
+//        Assertions
+//                .assertThat(restTemplate.getForObject("http://localhost:" + port + "/student", String.class))
+//                .isNotNull();
+//    }
+
+    @Test
+    void getAllTest() throws Exception {
+        ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<StudentDto>>() {
+                }
+        );
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void deleteTest() throws Exception {
+        // Добавляем студента для удаления
+        StudentDto studentDto = new StudentDto();
+        studentDto.setName("Zinka Test");
+        studentDto.setAge(48);
+
+        StudentDto addedStudentDto = studentController.createWithRandomFaculty(studentDto).getBody();
+        long id = addedStudentDto.getId();
+
+        HttpEntity<Void> request = new HttpEntity<>(null);
+
+        // сохраняем сущность перед тестом удаления
+        StudentDto oldStudentDto = studentController.get(id).getBody();
+
+        ResponseEntity<StudentDto> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/{id}",
+                HttpMethod.DELETE,
+                request,
+                StudentDto.class,
+                id
+        );
+
+        // Проверяем результат
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
