@@ -19,7 +19,7 @@ public class FacultyController {
     }
 
     @PostMapping                    // http://localhost:8080/faculty
-    public FacultyDto createFaculty(FacultyDto facultyDto) {
+    public FacultyDto createFaculty(@RequestBody FacultyDto facultyDto) {
         return service.create(facultyDto);
     }
 
