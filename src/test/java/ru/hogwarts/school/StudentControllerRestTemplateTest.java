@@ -9,12 +9,13 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import ru.hogwarts.school.controller.StudentController;
+import ru.hogwarts.school.dto.FacultyDto;
 import ru.hogwarts.school.dto.StudentDto;
 
 import java.util.Collection;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class StudentControllerTest {
+class StudentControllerRestTemplateTest {
 
     @LocalServerPort
     private int port;
@@ -208,16 +209,64 @@ class StudentControllerTest {
 
     @Test
     void getAllByAgeTest() throws Exception {
+        int age = 34;
 
+        ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/age/{age}",
+                HttpMethod.GET,
+//                HttpEntity.EMPTY,     // правильно так или null?
+                null,
+                new ParameterizedTypeReference<Collection<StudentDto>>() {
+                },
+                age);
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void findByAgeBetweenTest() throws Exception {
+        int min = 5;
+        int max = 35;
 
+        ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/age?min={min}&max={max}",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<StudentDto>>() {
+                },
+                min, max);
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void getFacultyByStudentIdTest() throws Exception {
+        // id существующего в БД студента
+        long id = 3;
 
+        ResponseEntity<FacultyDto> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/faculty?studentId={id}",
+                HttpMethod.GET,
+                null,
+                FacultyDto.class,
+                id
+        );
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // id несуществующего в БД студента
+        id = 665;
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/faculty?studentId={id}",
+                HttpMethod.GET,
+                null,
+                FacultyDto.class,
+                id
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }
