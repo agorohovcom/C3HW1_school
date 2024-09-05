@@ -33,7 +33,7 @@ public class StudentController {
         return new ResponseEntity<>(service.create(studentDto, facultyName), HttpStatus.CREATED);
     }
 
-    @GetMapping("{id}")                      // http://localhost:8080/student/1
+    @GetMapping("{id}")                      // http://localhost:8080/student/{1}
     public ResponseEntity<StudentDto> get(@PathVariable(value = "id") long studentId) {
         StudentDto studentDto = service.findById(studentId);
         if (studentDto == null) {
