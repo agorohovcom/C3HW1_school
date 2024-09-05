@@ -52,18 +52,18 @@ public class FacultyController {
         return ResponseEntity.ok(service.getAll());
     }
 
-    @GetMapping("color/{color}")    // http://localhost:8080/student/color/red
+    @GetMapping("color/{color}")    // http://localhost:8080/faculty/color/{red}
     public ResponseEntity<Collection<FacultyDto>> getAllFacultiesByColor(@PathVariable(value = "color") String facultyColor) {
         return ResponseEntity.ok(service.getAllByColor(facultyColor));
     }
 
-    @GetMapping("search")           // http://localhost:8080/student/search
+    @GetMapping("search")           // http://localhost:8080/faculty/search?name={name}&color={color}
     public ResponseEntity<Collection<FacultyDto>> getByNameOrColorIgnoreCase(@RequestParam String name, @RequestParam String color) {
         return ResponseEntity.ok(service.getByNameOrColorIgnoreCase(name, color));
     }
 
-    @GetMapping("students")         // http://localhost:8080/student/students
-    public ResponseEntity<Collection<StudentDto>> findStudentsByFacultyId(@RequestParam String facultyName) {
+    @GetMapping("students")         // http://localhost:8080/faculty/students
+    public ResponseEntity<Collection<StudentDto>> findStudentsByFacultyName(@RequestParam String facultyName) {
         return ResponseEntity.ok(service.findStudentsByFacultyName(facultyName));
     }
 }

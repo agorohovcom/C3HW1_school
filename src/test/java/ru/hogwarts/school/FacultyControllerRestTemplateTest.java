@@ -11,6 +11,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.dto.FacultyDto;
+import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.repository.FacultyRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -151,7 +152,7 @@ public class FacultyControllerRestTemplateTest {
     }
 
     @Test
-    void deleteFacultyTest() {
+    void deleteFacultyTest() throws Exception {
         long id = testFacultyDto.getId();
 
         HttpHeaders headers = new HttpHeaders();
@@ -179,5 +180,55 @@ public class FacultyControllerRestTemplateTest {
         );
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void getAllFacultiesTest() throws Exception {
+        Assertions
+                .assertThat(restTemplate.getForObject(
+                        "http://localhost:" + port + "/faculty",
+//                        String.class))         // работает и со String
+//                        Collection.class))     // и так
+                        FacultyDto[].class))    // и так
+                .isNotNull();
+    }
+
+    @Test
+    void getAllFacultiesByColorTest() throws Exception {
+        String color = testFacultyDto.getColor();
+
+        Assertions
+                .assertThat(restTemplate.getForObject(
+                        "http://localhost:" + port + "/faculty/color/{color}",
+                        FacultyDto[].class,
+                        color))
+                .isNotNull();
+    }
+
+    @Test
+    void getByNameOrColorIgnoreCaseTest() throws Exception {
+        String name = testFacultyDto.getName().toUpperCase();
+        String color = testFacultyDto.getColor().toLowerCase();
+
+        Assertions
+                .assertThat(restTemplate.getForObject(
+                        "http://localhost:" + port + "/faculty/search?name={name}&color={color}",
+                        FacultyDto[].class,
+                        name, color
+                ))
+                .isNotNull();
+    }
+
+    @Test
+    void findStudentsByFacultyNameTest() throws Exception {
+        String facultyName = testFacultyDto.getName();
+
+        Assertions
+                .assertThat(restTemplate.getForObject(
+                        "http://localhost:" + port + "/faculty/students?facultyName={facultyName}",
+                        StudentDto[].class,
+                        facultyName
+                ))
+                .isNotNull();
     }
 }
