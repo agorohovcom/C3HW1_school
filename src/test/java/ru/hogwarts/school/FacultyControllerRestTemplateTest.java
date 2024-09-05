@@ -149,4 +149,35 @@ public class FacultyControllerRestTemplateTest {
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void deleteFacultyTest() {
+        long id = testFacultyDto.getId();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "http://localhost:" + port + "/faculty/{id}",
+                HttpMethod.DELETE,
+                request,
+                String.class,
+                id
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // пробуем удалить уже удалённый факультет
+        response = restTemplate.exchange(
+                "http://localhost:" + port + "/faculty/{id}",
+                HttpMethod.DELETE,
+                request,
+                String.class,
+                id
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
