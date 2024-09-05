@@ -84,7 +84,7 @@ class StudentControllerRestTemplateTest {
         int age = 54;
         String facultyName = "Grif";
 
-        // Создаём объект запроса
+        // Создаём объект запроса (можно было null передать)
         HttpEntity<Void> request = new HttpEntity<>(null);
 
         // Выполняем POST-запрос

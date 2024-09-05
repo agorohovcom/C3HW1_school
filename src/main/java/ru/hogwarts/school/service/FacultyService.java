@@ -25,6 +25,7 @@ public class FacultyService {
 
     public FacultyDto create(FacultyDto facultyDto) {
         notNullParameterChecker(facultyDto);
+        facultyDto.setId(null);
         return FacultyDto.toDto(repository.save(FacultyDto.toEntity(facultyDto)));
     }
 
