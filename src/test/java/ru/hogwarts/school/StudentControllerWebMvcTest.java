@@ -24,7 +24,7 @@ import ru.hogwarts.school.service.StudentService;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,7 +59,7 @@ class StudentControllerWebMvcTest {
     private Student student;
 
     @BeforeEach
-    void createTestData() throws Exception {
+    void createTestData() {
         long id = 1L;
         String name = "Gena";
         int age = 34;
@@ -168,6 +168,24 @@ class StudentControllerWebMvcTest {
                         .put("/student"))
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteTest() throws Exception {
+        when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
+        doNothing().when(studentRepository).deleteById(anyLong());
+
+        studentRepository.deleteById(student.getId());
+
+        verify(studentRepository).deleteById(student.getId());
+
+        // тест удаления несуществующего студента
+        when(studentRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/student/{id}", student.getId())
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 }
