@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
@@ -22,11 +21,12 @@ import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.FacultyService;
 import ru.hogwarts.school.service.StudentService;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,26 +54,17 @@ class FacultyControllerWebMvcTest {
     private FacultyController facultyController;
 
     private Faculty faculty;
-    private Student student;
 
     @BeforeEach
     void createTestData() {
         long id = 1L;
-        String name = "Gena";
-        int age = 34;
         String facultyName = "Grif";
         String facultyColor = "red";
 
         faculty = new Faculty();
-        faculty.setId(111L);
+        faculty.setId(id);
         faculty.setName(facultyName);
         faculty.setColor(facultyColor);
-
-        student = new Student();
-        student.setId(id);
-        student.setName(name);
-        student.setAge(age);
-        student.setFaculty(faculty);
     }
 
     @Test
@@ -165,5 +156,78 @@ class FacultyControllerWebMvcTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void deleteFacultyTest() throws Exception {
+        when(facultyRepository.findById(anyLong())).thenReturn(Optional.of(faculty));
+        doNothing().when(facultyRepository).deleteById(anyLong());
 
+        facultyRepository.deleteById(faculty.getId());
+
+        verify(facultyRepository, times(1)).deleteById(anyLong());
+
+        // тест удаления несуществующего факультета
+        when(facultyRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete(
+                                "/faculty/{id}",
+                                faculty.getId()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getAllFacultiesTest() throws Exception {
+        when(facultyRepository.findAll()).thenReturn(List.of(faculty));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/faculty")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllFacultiesByColorTest() throws Exception {
+        when(facultyRepository.findAllByColorIgnoreCase(anyString())).thenReturn(List.of(faculty));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/faculty/color/{color}",
+                                faculty.getColor())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getByNameOrColorIgnoreCaseTest() throws Exception {
+        when(facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(anyString(), anyString())).thenReturn(List.of(faculty));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/faculty/search?name={name}&color={color}",
+                                faculty.getName(), faculty.getColor())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findStudentsByFacultyNameTest() throws Exception {
+        when(facultyRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.of(faculty));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/faculty/students?facultyName={facultyName}",
+                                faculty.getName())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // тест получения студентов у несуществующего факультета
+        when(facultyRepository.findByNameIgnoreCase(anyString())).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/faculty/students?facultyName={facultyName}",
+                                faculty.getName()))
+                .andExpect(status().isNotFound());
+
+    }
 }

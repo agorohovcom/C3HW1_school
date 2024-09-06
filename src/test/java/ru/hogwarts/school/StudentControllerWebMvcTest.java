@@ -187,8 +187,7 @@ class StudentControllerWebMvcTest {
         when(studentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/student/{id}", student.getId())
-                        .accept(MediaType.APPLICATION_JSON))
+                        .delete("/student/{id}", student.getId()))
                 .andExpect(status().isNotFound());
     }
 
