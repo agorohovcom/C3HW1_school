@@ -21,6 +21,7 @@ import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.FacultyService;
 import ru.hogwarts.school.service.StudentService;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -185,6 +186,65 @@ class StudentControllerWebMvcTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/student/{id}", student.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getAllTest() throws Exception {
+        when(studentRepository.findAll()).thenReturn(List.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllByAgeTest() throws Exception {
+        when(studentRepository.findAllByAge(anyInt())).thenReturn(List.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/student/age/{age}",
+                                student.getAge())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findByAgeBetweenTest() throws Exception {
+        when(studentRepository.findByAgeBetween(anyInt(), anyInt())).thenReturn(List.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/student/age?min={min}&max={max}",
+                                student.getAge() - 1, student.getAge() + 1)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getFacultyByStudentId() throws Exception {
+        when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/student/faculty?studentId={studentId}",
+                                student.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(faculty.getId()))
+                .andExpect(jsonPath("$.name").value(faculty.getName()))
+                .andExpect(jsonPath("$.color").value(faculty.getColor()));
+
+        // тест получения факультета несуществующего студента
+        when(studentRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(
+                                "/student/faculty?studentId={studentId}",
+                                student.getId() + 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
