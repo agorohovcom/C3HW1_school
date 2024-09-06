@@ -1,5 +1,6 @@
 package ru.hogwarts.school;
 
+import org.assertj.core.api.Assertions;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,19 +38,15 @@ class StudentControllerWebMvcTest {
 
     @MockBean
     private StudentRepository studentRepository;
-
     @MockBean
     private FacultyRepository facultyRepository;
-
     @MockBean
     private AvatarRepository avatarRepository;
 
     @SpyBean
     private StudentService service;
-
     @SpyBean
     private FacultyService facultyService;
-
     @SpyBean
     private AvatarService avatarService;
 
@@ -77,6 +74,11 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
         student.setFaculty(faculty);
+    }
+
+    @Test
+    void contextLoads() {
+        Assertions.assertThat(studentController).isNotNull();
     }
 
     @Test
