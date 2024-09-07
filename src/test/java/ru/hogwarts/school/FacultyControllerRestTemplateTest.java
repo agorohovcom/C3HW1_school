@@ -1,6 +1,7 @@
 package ru.hogwarts.school;
 
 import org.assertj.core.api.Assertions;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,12 @@ import org.springframework.http.*;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.dto.FacultyDto;
 import ru.hogwarts.school.dto.StudentDto;
+import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
+import ru.hogwarts.school.repository.StudentRepository;
+
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FacultyControllerRestTemplateTest {
@@ -24,29 +30,38 @@ public class FacultyControllerRestTemplateTest {
     private FacultyController facultyController;
 
     @Autowired
-    FacultyRepository facultyRepository;
+    private StudentRepository studentRepository;
+    @Autowired
+    private FacultyRepository facultyRepository;
 
     @Autowired
     TestRestTemplate restTemplate;
 
-    private FacultyDto testFacultyDto;
+    private StudentDto studentDto;
+    private FacultyDto facultyDto;
 
     @BeforeEach
     void createTestEntity() {
-        testFacultyDto = new FacultyDto();
-        testFacultyDto.setName("Test faculty");
-        testFacultyDto.setColor("Test color");
+        String studentName = "Albert Test Buddy";
+        int studentAge = 35;
 
-        // создаём факультет и присваиваем ему его же, но уже с id
-        testFacultyDto = facultyController.createFaculty(testFacultyDto);
+        String facultyName = "Super Mega Test Faculty";
+        String facultyColor = "Pink";
+
+        Student student = new Student(null, studentName, studentAge);
+        Faculty faculty = new Faculty(null, facultyName, facultyColor);
+        student.setFaculty(faculty);
+        faculty.setStudents(List.of(student));
+
+        facultyDto = FacultyDto.toDto(facultyRepository.save(faculty));
+        studentDto = StudentDto.toDto(studentRepository.save(student));
     }
 
     @AfterEach
     void deleteTestEntity() {
-        // если есть, удаляем тестовый факультет из БД
-        if (facultyRepository.existsById(testFacultyDto.getId())) {
-            facultyRepository.deleteById(testFacultyDto.getId());
-        }
+        // настроил "cascade = CascadeType.REMOVE", можно удалять только факультет, но оставлю так
+        studentRepository.deleteById(studentDto.getId());
+        facultyRepository.deleteById(facultyDto.getId());
     }
 
     @Test
@@ -55,20 +70,20 @@ public class FacultyControllerRestTemplateTest {
     }
 
     @Test
-    void createFacultyTest() {
-        String name = "Create Test Name";
-        String color = "Create Test Color (green, of course)";
+    void createFacultyTest() throws Exception {
+        String expectedName = "Create Test Name";
+        String expectedColor = "Create Test Color (green, of course)";
 
-        FacultyDto facultyDto = new FacultyDto();
-        facultyDto.setName(name);
-        facultyDto.setColor(color);
+        JSONObject facultyObject = new JSONObject();
+        facultyObject.put("name", expectedName);
+        facultyObject.put("color", expectedColor);
 
         // Создаем заголовки запроса
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Создаем объект запроса
-        HttpEntity<FacultyDto> request = new HttpEntity<>(facultyDto, headers);
+        HttpEntity<String> request = new HttpEntity<>(facultyObject.toString(), headers);
 
         ResponseEntity<FacultyDto> response = restTemplate.postForEntity(
                 "http://localhost:" + port + "/faculty",
@@ -78,8 +93,8 @@ public class FacultyControllerRestTemplateTest {
 
         Assertions.assertThat(response.getBody()).isNotNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(response.getBody().getName()).isEqualTo(name);
-        Assertions.assertThat(response.getBody().getColor()).isEqualTo(color);
+        Assertions.assertThat(response.getBody().getName()).isEqualTo(expectedName);
+        Assertions.assertThat(response.getBody().getColor()).isEqualTo(expectedColor);
 
         // удаляем из БД
         facultyRepository.deleteById(response.getBody().getId());
@@ -87,42 +102,46 @@ public class FacultyControllerRestTemplateTest {
 
     @Test
     void getFacultyTest() {
-        long id = testFacultyDto.getId();
-
         ResponseEntity<FacultyDto> response = restTemplate.getForEntity(
                 "http://localhost:" + port + "/faculty/{id}",
                 FacultyDto.class,
-                id
+                facultyDto.getId()
         );
 
         Assertions.assertThat(response.getBody()).isNotNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody().getId()).isEqualTo(facultyDto.getId());
+        Assertions.assertThat(response.getBody().getName()).isEqualTo(facultyDto.getName());
+        Assertions.assertThat(response.getBody().getColor()).isEqualTo(facultyDto.getColor());
+    }
 
-        // удаляем тестовый факультет чтобы не было с таким id
-        facultyRepository.deleteById(id);
+    @Test
+    void getFacultyFailIdTest() {
+        deleteTestEntity();
 
-        response = restTemplate.getForEntity(
+        ResponseEntity<FacultyDto> response = restTemplate.getForEntity(
                 "http://localhost:" + port + "/faculty/{id}",
                 FacultyDto.class,
-                id
+                facultyDto.getId()
         );
 
-        Assertions.assertThat(response.getBody()).isNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    void editFacultyTest() {
-        String editedName = "Edited Test name";
-        String editedColor = "Edited Test color";
+    void editFacultyTest() throws Exception {
+        String editedName = facultyDto.getName() + " Edited";
+        String editedColor = facultyDto.getColor() + " Edited";
 
-        testFacultyDto.setName(editedName);
-        testFacultyDto.setColor(editedColor);
+        JSONObject facultyObject = new JSONObject();
+        facultyObject.put("id", facultyDto.getId());
+        facultyObject.put("name", editedName);
+        facultyObject.put("color", editedColor);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<FacultyDto> request = new HttpEntity<>(testFacultyDto, headers);
+        HttpEntity<String> request = new HttpEntity<>(facultyObject.toString(), headers);
 
         ResponseEntity<FacultyDto> response = restTemplate.exchange(
                 "http://localhost:" + port + "/faculty",
@@ -133,15 +152,26 @@ public class FacultyControllerRestTemplateTest {
 
         Assertions.assertThat(response.getBody()).isNotNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(response.getBody().getId()).isEqualTo(testFacultyDto.getId());
+        Assertions.assertThat(response.getBody().getId()).isEqualTo(facultyDto.getId());
         Assertions.assertThat(response.getBody().getName()).isEqualTo(editedName);
         Assertions.assertThat(response.getBody().getColor()).isEqualTo(editedColor);
+    }
 
-        //  удаляем тестовый факультет
-        facultyRepository.deleteById(testFacultyDto.getId());
-        request = new HttpEntity<>(testFacultyDto, headers);
+    @Test
+    void editFacultyFailIdTest() throws Exception {
+        deleteTestEntity();
 
-        response = restTemplate.exchange(
+        JSONObject facultyObject = new JSONObject();
+        facultyObject.put("id", facultyDto.getId());
+        facultyObject.put("name", facultyDto.getName());
+        facultyObject.put("color", facultyDto.getColor());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(facultyObject.toString(), headers);
+
+        ResponseEntity<FacultyDto> response = restTemplate.exchange(
                 "http://localhost:" + port + "/faculty",
                 HttpMethod.PUT,
                 request,
@@ -153,7 +183,8 @@ public class FacultyControllerRestTemplateTest {
 
     @Test
     void deleteFacultyTest() {
-        long id = testFacultyDto.getId();
+        // проверяем, что перед удалением факультет есть
+        Assertions.assertThat(facultyRepository.existsById(facultyDto.getId())).isTrue();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -165,22 +196,38 @@ public class FacultyControllerRestTemplateTest {
                 HttpMethod.DELETE,
                 request,
                 String.class,
-                id
+                facultyDto.getId()
         );
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // пробуем удалить уже удалённый факультет
-        response = restTemplate.exchange(
+        // проверяем, что после удаления факультета нет
+        Assertions.assertThat(facultyRepository.existsById(facultyDto.getId())).isFalse();
+    }
+
+    @Test
+    void deleteFacultyFailIdTest() {
+        // удаляем факультет
+        deleteTestEntity();
+        // проверяем, что факультета нет
+        Assertions.assertThat(facultyRepository.existsById(facultyDto.getId())).isFalse();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:" + port + "/faculty/{id}",
                 HttpMethod.DELETE,
                 request,
                 String.class,
-                id
+                facultyDto.getId()
         );
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
 
     @Test
     void getAllFacultiesTest() {
@@ -195,7 +242,7 @@ public class FacultyControllerRestTemplateTest {
 
     @Test
     void getAllFacultiesByColorTest() {
-        String color = testFacultyDto.getColor();
+        String color = facultyDto.getColor();
 
         Assertions
                 .assertThat(restTemplate.getForObject(
@@ -207,8 +254,8 @@ public class FacultyControllerRestTemplateTest {
 
     @Test
     void getByNameOrColorIgnoreCaseTest() {
-        String name = testFacultyDto.getName().toUpperCase();
-        String color = testFacultyDto.getColor().toLowerCase();
+        String name = facultyDto.getName().toUpperCase();
+        String color = facultyDto.getColor().toLowerCase();
 
         Assertions
                 .assertThat(restTemplate.getForObject(
@@ -221,7 +268,7 @@ public class FacultyControllerRestTemplateTest {
 
     @Test
     void findStudentsByFacultyNameTest() {
-        String facultyName = testFacultyDto.getName();
+        String facultyName = facultyDto.getName();
 
         Assertions
                 .assertThat(restTemplate.getForObject(

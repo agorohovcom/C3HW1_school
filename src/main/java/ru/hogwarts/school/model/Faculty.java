@@ -15,7 +15,7 @@ public class Faculty {
     private String name;
     private String color;
 
-    @OneToMany(mappedBy = "faculty", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "faculty", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Collection<Student> students;
 
     public Faculty(Long id, String name, String color) {
