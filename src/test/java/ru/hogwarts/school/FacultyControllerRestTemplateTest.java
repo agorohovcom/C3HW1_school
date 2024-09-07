@@ -99,7 +99,7 @@ public class FacultyControllerRestTemplateTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // удаляем тестовый факультет чтобы не было с таким id
-        facultyController.deleteFaculty(id);
+        facultyRepository.deleteById(id);
 
         response = restTemplate.getForEntity(
                 "http://localhost:" + port + "/faculty/{id}",

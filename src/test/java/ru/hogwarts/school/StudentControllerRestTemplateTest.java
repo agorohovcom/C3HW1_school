@@ -1,6 +1,9 @@
 package ru.hogwarts.school;
 
 import org.assertj.core.api.Assertions;
+import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +14,13 @@ import org.springframework.http.*;
 import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.dto.FacultyDto;
 import ru.hogwarts.school.dto.StudentDto;
+import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.FacultyRepository;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class StudentControllerRestTemplateTest {
@@ -24,7 +32,38 @@ class StudentControllerRestTemplateTest {
     private StudentController studentController;
 
     @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private FacultyRepository facultyRepository;
+
+    @Autowired
     TestRestTemplate restTemplate;
+
+    private StudentDto studentDto;
+    private FacultyDto facultyDto;
+
+    @BeforeEach
+    void createTestData() {
+        String studentName = "Albert Test Buddy";
+        int studentAge = 35;
+
+        String facultyName = "Super Mega Test Faculty";
+        String facultyColor = "Pink";
+
+        Student student = new Student(null, studentName, studentAge);
+        Faculty faculty = new Faculty(null, facultyName, facultyColor);
+        student.setFaculty(faculty);
+        faculty.setStudents(List.of(student));
+
+        facultyDto = FacultyDto.toDto(facultyRepository.save(faculty));
+        studentDto = StudentDto.toDto(studentRepository.save(student));
+    }
+
+    @AfterEach
+    void deleteTestData() {
+        studentRepository.deleteById(studentDto.getId());
+        facultyRepository.deleteById(facultyDto.getId());
+    }
 
     @Test
     void contextLoads() {
@@ -32,115 +71,109 @@ class StudentControllerRestTemplateTest {
     }
 
     @Test
-    void createWithRandomFacultyTest() {
-        StudentDto studentDto = new StudentDto();
-        studentDto.setName("Albert Test");
-        studentDto.setAge(35);
+    void createWithRandomFacultyTest() throws Exception {
+        // поля добавляемого студента
+        String expectedName = "New student test name";
+        int expectedAge = 54;
+
+        JSONObject studentObject = new JSONObject();
+        studentObject.put("name", expectedName);
+        studentObject.put("age", expectedAge);
 
         // Создаем заголовки запроса
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Создаем объект запроса
-        HttpEntity<StudentDto> request = new HttpEntity<>(studentDto, headers);
+        HttpEntity<String> request = new HttpEntity<>(studentObject.toString(), headers);
 
         // Выполняем POST-запрос
-        ResponseEntity<StudentDto> response = restTemplate.postForEntity(
+        ResponseEntity<StudentDto> response = restTemplate.exchange(
                 "http://localhost:" + port + "/student/create_with_random_faculty",
+                HttpMethod.POST,
                 request,
                 StudentDto.class
         );
 
         Assertions.assertThat(response.getBody()).isNotNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        Assertions.assertThat(response.getBody().getName()).isEqualTo(studentDto.getName());
-        Assertions.assertThat(response.getBody().getAge()).isEqualTo(studentDto.getAge());
+        Assertions.assertThat(response.getBody().getName()).isEqualTo(expectedName);
+        Assertions.assertThat(response.getBody().getAge()).isEqualTo(expectedAge);
 
         // Удаляем созданного студента из БД
-        studentController.delete(response.getBody().getId());
+        studentRepository.deleteById(response.getBody().getId());
     }
-
-    // Это пример из шпаргалки. Вопросы:
-    // Какая разница между postForEntity и postForObject?
-    // В этом примере можно как-то удалить тестовые данные?
-    // Какой способ лучше использовать?
-//    @Test
-//    public void createWithRandomFacultyTest() {
-//        StudentDto studentDto = new StudentDto();
-//        studentDto.setName("Albert Test");
-//        studentDto.setAge(35);
-//
-//        Assertions
-//                .assertThat(restTemplate.postForObject(
-//                        "http://localhost:" + port + "/student/create_with_random_faculty",
-//                        studentDto,
-//                        String.class))
-//                .isNotNull();
-//    }
 
     @Test
     void createTest() throws Exception {
-        String name = "Dima Krasnik Test";
-        int age = 54;
-        String facultyName = "Grif";
-
-        // Создаём объект запроса (можно было null передать)
-        HttpEntity<Void> request = new HttpEntity<>(null);
+        String expectedName = "New student test name";
+        int expectedAge = 54;
+        String expectedFacultyName = facultyDto.getName();
 
         // Выполняем POST-запрос
         ResponseEntity<StudentDto> response = restTemplate.exchange(
-                "http://localhost:" + port + "/student/create?name={name}&age={age}&facultyName={facultyName}",
+                "http://localhost:"
+                        + port
+                        + "/student/create?name={expectedName}&age={expectedAge}&facultyName={expectedFacultyName}",
                 HttpMethod.POST,
-                request,
+                null,
                 StudentDto.class,
-                name, age, facultyName
+                expectedName, expectedAge, expectedFacultyName
         );
 
         // Проверяем результат
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Assertions.assertThat(response.getBody()).isNotNull();
-        Assertions.assertThat(response.getBody().getName()).isEqualTo(name);
+        Assertions.assertThat(response.getBody().getName()).isEqualTo(expectedName);
+        Assertions.assertThat(response.getBody().getAge()).isEqualTo(expectedAge);
 
         // Удаляем созданного студента из БД
-        studentController.delete(response.getBody().getId());
+        studentRepository.deleteById(response.getBody().getId());
     }
 
     @Test
     void getTest() {
-        // id существующего в БД студента
-        long studentId = 2L;
+        ResponseEntity<StudentDto> response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/student/{id}",
+                StudentDto.class,
+                studentDto.getId());
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getBody().getId()).isEqualTo(studentDto.getId());
+        Assertions.assertThat(response.getBody().getName()).isEqualTo(studentDto.getName());
+        Assertions.assertThat(response.getBody().getAge()).isEqualTo(studentDto.getAge());
+        Assertions.assertThat(response.getBody().getFacultyDto()).isEqualTo(studentDto.getFacultyDto());
+    }
+
+    @Test
+    void getFailIdTest() {
+        studentRepository.deleteById(studentDto.getId());
 
         ResponseEntity<StudentDto> response = restTemplate.getForEntity(
                 "http://localhost:" + port + "/student/{id}",
                 StudentDto.class,
-                studentId);
+                studentDto.getId());
 
-        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(response.getBody()).isNotNull();
-        Assertions.assertThat(response.getBody().getId()).isEqualTo(studentId);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    void editTest() {
-        // указываем id реально существующего в БД студента
-        long id = 3L;
-        String name = "Sveta Testovaya Podruga";
-        int age = 38;
+    void editTest() throws Exception {
+        String expectedName = studentDto.getName() + " Changed";
+        int expectedAge = studentDto.getAge() + 30;
 
-        StudentDto studentDto = new StudentDto();
-        studentDto.setId(id);
-        studentDto.setName(name);
-        studentDto.setAge(age);
+        JSONObject studentObject = new JSONObject();
+        studentObject.put("id", studentDto.getId());
+        studentObject.put("name", expectedName);
+        studentObject.put("age", expectedAge);
+        studentObject.put("facultyName", facultyDto.getName());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<StudentDto> requestEntity = new HttpEntity<>(studentDto, headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(studentObject.toString(), headers);
 
-        // сохраняем реальную запись, чтобы восстановить её после теста
-        StudentDto oldStudentDto = studentController.get(id).getBody();
-
-        // Выполняем PUT-запрос
         ResponseEntity<StudentDto> response = restTemplate.exchange(
                 "http://localhost:" + port + "/student",
                 HttpMethod.PUT,
@@ -152,46 +185,71 @@ class StudentControllerRestTemplateTest {
         // Проверяем результат
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(response.getBody()).isNotNull();
-        Assertions.assertThat(response.getBody().getName()).isEqualTo(name);
+        Assertions.assertThat(response.getBody().getId()).isEqualTo(studentDto.getId());
+        Assertions.assertThat(response.getBody().getName()).isEqualTo(expectedName);
+        Assertions.assertThat(response.getBody().getAge()).isEqualTo(expectedAge);
+    }
 
-        // Возвращаем старую запись на место
-        studentController.edit(oldStudentDto);
+    @Test
+    void editFailIdTest() throws Exception {
+        // удаляем студента из БД
+        studentRepository.deleteById(studentDto.getId());
+
+        JSONObject studentObject = new JSONObject();
+        studentObject.put("id", studentDto.getId());
+        studentObject.put("name", studentDto.getName());
+        studentObject.put("age", studentDto.getAge());
+        studentObject.put("facultyName", facultyDto.getName());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(studentObject.toString(), headers);
+
+        ResponseEntity<StudentDto> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student",
+                HttpMethod.PUT,
+                requestEntity,
+                StudentDto.class,
+                studentDto.getId()
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     void deleteTest() throws Exception {
-        // Добавляем студента для удаления
-        StudentDto studentDto = new StudentDto();
-        studentDto.setName("Zinka Test");
-        studentDto.setAge(48);
-
-        StudentDto addedStudentDto = studentController.createWithRandomFaculty(studentDto).getBody();
-        long id = addedStudentDto.getId();
-
-        HttpEntity<Void> request = new HttpEntity<>(null);
-
-        // сохраняем сущность перед тестом удаления
-        StudentDto oldStudentDto = studentController.get(id).getBody();
+        // проверяем, что перед удалением студент есть
+        Assertions.assertThat(studentRepository.existsById(studentDto.getId())).isTrue();
 
         ResponseEntity<StudentDto> response = restTemplate.exchange(
                 "http://localhost:" + port + "/student/{id}",
                 HttpMethod.DELETE,
-                request,
+                null,
                 StudentDto.class,
-                id
+                studentDto.getId()
         );
 
-        // Проверяем результат
+        // проверяем, что после удаления студента нет
+        Assertions.assertThat(studentRepository.existsById(studentDto.getId())).isFalse();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    // вариант из шпаргалки
-//    @Test
-//    void getAllTest() throws Exception {
-//        Assertions
-//                .assertThat(restTemplate.getForObject("http://localhost:" + port + "/student", String.class))
-//                .isNotNull();
-//    }
+    @Test
+    void deleteFailIdTest() throws Exception {
+        // удаляем студента из бд
+        studentRepository.deleteById(studentDto.getId());
+
+        ResponseEntity<StudentDto> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/{id}",
+                HttpMethod.DELETE,
+                null,
+                StudentDto.class,
+                studentDto.getId()
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 
     @Test
     void getAllTest() {
@@ -214,8 +272,7 @@ class StudentControllerRestTemplateTest {
         ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
                 "http://localhost:" + port + "/student/age/{age}",
                 HttpMethod.GET,
-//                HttpEntity.EMPTY,     // правильно так или null?
-                null,
+                HttpEntity.EMPTY,
                 new ParameterizedTypeReference<Collection<StudentDto>>() {
                 },
                 age);
