@@ -23,8 +23,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = StudentController.class)
 class StudentControllerWebMvcTest {
@@ -232,5 +231,52 @@ class StudentControllerWebMvcTest {
                                 student.getId() + 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void countTest() throws Exception {
+        when(studentRepository.count()).thenReturn(1L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/count")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("1"));
+
+        // тест получения количества студентов из пустой таблицы
+        when(studentRepository.count()).thenReturn(0L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/count")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("0"));
+        ;
+
+    }
+
+    @Test
+    void avgAgeTest() throws Exception {
+        when(studentRepository.avgAge()).thenReturn(student.getAge());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/avg_age")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(student.getAge().toString()));
+    }
+
+    @Test
+    void findFileLastStudentsTest() throws Exception {
+        when(studentRepository.findFileLastStudents()).thenReturn(List.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/five_last_students")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }

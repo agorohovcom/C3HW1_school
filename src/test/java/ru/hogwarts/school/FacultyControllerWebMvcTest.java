@@ -42,7 +42,6 @@ class FacultyControllerWebMvcTest {
     @SpyBean
     private StudentService studentService;
 
-
     private Faculty faculty;
 
     @BeforeEach
