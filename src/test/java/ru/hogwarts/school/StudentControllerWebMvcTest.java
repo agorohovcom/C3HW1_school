@@ -1,10 +1,8 @@
 package ru.hogwarts.school;
 
-import org.assertj.core.api.Assertions;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,10 +13,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
-import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.FacultyService;
 import ru.hogwarts.school.service.StudentService;
 
@@ -30,7 +26,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(controllers = StudentController.class)
 class StudentControllerWebMvcTest {
 
     @Autowired
@@ -40,18 +36,11 @@ class StudentControllerWebMvcTest {
     private StudentRepository studentRepository;
     @MockBean
     private FacultyRepository facultyRepository;
-    @MockBean
-    private AvatarRepository avatarRepository;
 
     @SpyBean
     private StudentService service;
     @SpyBean
     private FacultyService facultyService;
-    @SpyBean
-    private AvatarService avatarService;
-
-    @InjectMocks
-    private StudentController studentController;
 
     private Faculty faculty;
     private Student student;
@@ -74,11 +63,6 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
         student.setFaculty(faculty);
-    }
-
-    @Test
-    void contextLoads() {
-        Assertions.assertThat(studentController).isNotNull();
     }
 
     @Test
