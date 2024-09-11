@@ -62,7 +62,7 @@ public class FacultyController {
         return ResponseEntity.ok(service.getByNameOrColorIgnoreCase(name, color));
     }
 
-    @GetMapping("students")         // http://localhost:8080/faculty/students
+    @GetMapping("students")         // http://localhost:8080/faculty/students?facultyName={facultyName}
     public ResponseEntity<Collection<StudentDto>> findStudentsByFacultyName(@RequestParam String facultyName) {
         return ResponseEntity.ok(service.findStudentsByFacultyName(facultyName));
     }
