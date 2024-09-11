@@ -1,5 +1,6 @@
 package ru.hogwarts.school.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ru.hogwarts.school.model.Avatar;
 
 import java.util.Arrays;
@@ -10,6 +11,7 @@ public class AvatarDto {
     private String filePath;
     private long fileSize;
     private String mediaType;
+    @JsonIgnore
     private byte[] data;
     private StudentDto studentDto;
 

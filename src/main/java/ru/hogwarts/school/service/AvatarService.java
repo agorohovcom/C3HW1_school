@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.dto.AvatarDto;
@@ -15,7 +16,10 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -64,6 +68,16 @@ public class AvatarService {
         avatarDto.setStudentDto(studentDto);
 
         repository.save(AvatarDto.toEntity(avatarDto));
+    }
+
+    public Collection<AvatarDto> findAll(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+        return repository
+                .findAll(pageRequest)
+                .getContent()
+                .stream()
+                .map(AvatarDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private String getExtension(String fileName) {

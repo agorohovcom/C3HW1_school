@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Entity
-//@Transactional
 public class Avatar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
