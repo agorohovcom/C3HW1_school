@@ -46,6 +46,7 @@ public class FacultyService {
     public void delete(long facultyId) {
         idParameterChecker(facultyId);
         find(facultyId); // чтобы если такого факультета не было, возвращалась ошибка, а не 200
+
         repository.deleteById(facultyId);
     }
 
