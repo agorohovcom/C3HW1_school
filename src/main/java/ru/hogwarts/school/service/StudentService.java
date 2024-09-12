@@ -101,6 +101,22 @@ public class StudentService {
         return FacultyDto.toDto(student.getFaculty());
     }
 
+    public long count() {
+        return repository.count();
+    }
+
+    public int avgAge() {
+        return repository.avgAge();
+    }
+
+    public Collection<StudentDto> findFileLastStudents() {
+        return repository
+                .findFileLastStudents()
+                .stream()
+                .map(StudentDto::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     private void notNullParameterChecker(Object o) {
         if (o == null) {
             throw new ParameterIsNullException("Параметр не может быть null");

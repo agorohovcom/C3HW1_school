@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Entity
-//@Transactional
 public class Avatar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,12 +71,12 @@ public class Avatar {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Avatar avatar = (Avatar) o;
-        return fileSize == avatar.fileSize && Objects.equals(id, avatar.id) && Objects.equals(filePath, avatar.filePath) && Objects.equals(mediaType, avatar.mediaType) && Objects.deepEquals(data, avatar.data) && Objects.equals(student, avatar.student);
+        return Objects.equals(id, avatar.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, filePath, fileSize, mediaType, Arrays.hashCode(data), student);
+        return Objects.hashCode(id);
     }
 
     @Override

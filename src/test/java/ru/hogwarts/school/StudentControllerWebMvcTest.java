@@ -1,10 +1,8 @@
 package ru.hogwarts.school;
 
-import org.assertj.core.api.Assertions;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,10 +13,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
-import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.FacultyService;
 import ru.hogwarts.school.service.StudentService;
 
@@ -27,10 +23,9 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
+@WebMvcTest(controllers = StudentController.class)
 class StudentControllerWebMvcTest {
 
     @Autowired
@@ -40,18 +35,11 @@ class StudentControllerWebMvcTest {
     private StudentRepository studentRepository;
     @MockBean
     private FacultyRepository facultyRepository;
-    @MockBean
-    private AvatarRepository avatarRepository;
 
     @SpyBean
     private StudentService service;
     @SpyBean
     private FacultyService facultyService;
-    @SpyBean
-    private AvatarService avatarService;
-
-    @InjectMocks
-    private StudentController studentController;
 
     private Faculty faculty;
     private Student student;
@@ -74,11 +62,6 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
         student.setFaculty(faculty);
-    }
-
-    @Test
-    void contextLoads() {
-        Assertions.assertThat(studentController).isNotNull();
     }
 
     @Test
@@ -248,5 +231,52 @@ class StudentControllerWebMvcTest {
                                 student.getId() + 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void countTest() throws Exception {
+        when(studentRepository.count()).thenReturn(1L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/count")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("1"));
+
+        // тест получения количества студентов из пустой таблицы
+        when(studentRepository.count()).thenReturn(0L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/count")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("0"));
+        ;
+
+    }
+
+    @Test
+    void avgAgeTest() throws Exception {
+        when(studentRepository.avgAge()).thenReturn(student.getAge());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/avg_age")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(student.getAge().toString()));
+    }
+
+    @Test
+    void findFileLastStudentsTest() throws Exception {
+        when(studentRepository.findFileLastStudents()).thenReturn(List.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/five_last_students")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }

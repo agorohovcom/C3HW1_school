@@ -21,6 +21,7 @@ import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class StudentControllerRestTemplateTest {
@@ -300,8 +301,7 @@ class StudentControllerRestTemplateTest {
 
     @Test
     void getFacultyByStudentIdTest() {
-        // id существующего в БД студента
-        long id = 3;
+        long id = studentDto.getId();
 
         ResponseEntity<FacultyDto> response = restTemplate.exchange(
                 "http://localhost:" + port + "/student/faculty?studentId={id}",
@@ -314,8 +314,9 @@ class StudentControllerRestTemplateTest {
         Assertions.assertThat(response.getBody()).isNotNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // id несуществующего в БД студента
-        id = 665;
+        // удаляем нашего студента из БД
+        studentRepository.deleteById(studentDto.getId());
+
         response = restTemplate.exchange(
                 "http://localhost:" + port + "/student/faculty?studentId={id}",
                 HttpMethod.GET,
@@ -325,5 +326,43 @@ class StudentControllerRestTemplateTest {
         );
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void countTest() {
+        ResponseEntity<Long> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/count",
+                HttpMethod.GET,
+                null,
+                Long.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void avgAgeTest() {
+        ResponseEntity<Integer> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/avg_age",
+                HttpMethod.GET,
+                null,
+                Integer.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void findFileLastStudents() {
+        ResponseEntity<Collection<StudentDto>> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/five_last_students",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<StudentDto>>() {
+                }
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(Objects.requireNonNull(response.getBody()).size()).isBetween(0, 5);
     }
 }

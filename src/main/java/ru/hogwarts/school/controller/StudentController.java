@@ -76,4 +76,19 @@ public class StudentController {
     public ResponseEntity<FacultyDto> getFacultyByStudentId(@RequestParam long studentId) {
         return ResponseEntity.ok(service.findFacultyByStudentId(studentId));
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> count() {
+        return ResponseEntity.ok(service.count());
+    }
+
+    @GetMapping("/avg_age")
+    public ResponseEntity<Integer> avgAge() {
+        return ResponseEntity.ok(service.avgAge());
+    }
+
+    @GetMapping("/five_last_students")
+    public ResponseEntity<Collection<StudentDto>> findFileLastStudents() {
+        return ResponseEntity.ok(service.findFileLastStudents());
+    }
 }

@@ -13,6 +13,7 @@ import ru.hogwarts.school.service.AvatarService;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("avatar")
@@ -52,4 +53,45 @@ public class AvatarController {
             bis.transferTo(bos);
         }
     }
+
+    @GetMapping()
+    public ResponseEntity<Collection<AvatarDto>> findAll(
+            @RequestParam("page") Integer pageNumber,
+            @RequestParam("size") Integer pageSize) throws IOException {
+        var avatarDtoList = service
+                .findAll(pageNumber, pageSize)
+                .stream()
+                .toList();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(avatarDtoList);
+    }
+
+    // возвращает ссылки на скачивание аватарок xD
+//    @GetMapping(value = "previews")
+//    public void findAllAvatarPreviews(
+//            @RequestParam("page") Integer pageNumber,
+//            @RequestParam("size") Integer pageSize,
+//            HttpServletResponse response) throws IOException {
+//        var avatarDtoList = service
+//                .findAllAvatarPreviews(pageNumber, pageSize)
+//                .stream()
+//                .toList();
+//
+//        response.setStatus(200);
+//        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+//        response.setContentLength(avatarDtoList.stream().mapToInt(e -> e.getData().length).sum());
+//
+//        try(OutputStream os = response.getOutputStream();
+//        BufferedOutputStream bos = new BufferedOutputStream(os, 1024)) {
+//            for (AvatarDto a : avatarDtoList) {
+//                bos.write(a.getData());
+//            }
+//        }
+//    }
 }
