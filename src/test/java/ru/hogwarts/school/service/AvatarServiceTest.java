@@ -7,6 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.dto.AvatarDto;
@@ -22,6 +26,8 @@ import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -186,6 +192,19 @@ class AvatarServiceTest {
     }
 
     @Test
-    void findAll() {
+    void findAllTest() {
+        int pageNumber = 1;
+        int pageSize = 5;
+
+        Pageable pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+        Page<Avatar> avatarPage = new PageImpl<>(List.of(avatar));
+
+        when(avatarRepositoryMock.findAll(pageRequest)).thenReturn(avatarPage);
+
+        Collection<AvatarDto> actual = out.findAll(pageNumber, pageSize);
+
+        assertNotNull(actual);
+        assertEquals(avatar.getId(), actual.iterator().next().getId());
+        assertEquals(avatar.getData(), actual.iterator().next().getData());
     }
 }
