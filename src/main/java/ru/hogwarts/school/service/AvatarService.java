@@ -8,6 +8,7 @@ import ru.hogwarts.school.dto.AvatarDto;
 import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.exception.AvatarNotFoundException;
 import ru.hogwarts.school.exception.IncorrectIdException;
+import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.repository.AvatarRepository;
 
@@ -51,7 +52,9 @@ public class AvatarService {
     }
 
     public void upload(Long studentId, MultipartFile avatar) throws IOException {
+        notNullParameterChecker(avatar);
         idParameterChecker(studentId);
+
         StudentDto studentDto = studentService.findById(studentId);
         Path filePath = Path.of(folder, "student_" + studentDto.getId() + "." + getExtension(Objects.requireNonNull(avatar.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -108,6 +111,12 @@ public class AvatarService {
     private void idParameterChecker(long id) {
         if (id < 1) {
             throw new IncorrectIdException("ID не может быть меньше 1");
+        }
+    }
+
+    private void notNullParameterChecker(Object o) {
+        if (o == null) {
+            throw new ParameterIsNullException("Параметр не может быть null");
         }
     }
 }

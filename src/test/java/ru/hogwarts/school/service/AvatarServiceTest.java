@@ -7,20 +7,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.dto.AvatarDto;
 import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.exception.AvatarNotFoundException;
 import ru.hogwarts.school.exception.IncorrectIdException;
+import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.repository.AvatarRepository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AvatarServiceTest {
@@ -32,6 +38,8 @@ class AvatarServiceTest {
     private AvatarRepository avatarRepositoryMock;
     @Mock
     private StudentService studentServiceMock;
+
+    private MultipartFile avatarFileMock;
 
     private String folder;
     private String testFolderPath = "./test_avatar_folder/";
@@ -66,6 +74,17 @@ class AvatarServiceTest {
         avatarDto.setStudentDto(studentDto);
 
         avatar = AvatarDto.toEntity(avatarDto);
+
+        // тестовый файл
+        File testFile = new File("./src/test/java/ru/hogwarts/school/test_files/test_file.jpg");
+        FileInputStream fis = new FileInputStream(testFile);
+
+        avatarFileMock = new MockMultipartFile(
+                "avatar",
+                "avatar.png",
+                "image/png",
+                fis
+        );
     }
 
     @AfterEach
@@ -141,7 +160,29 @@ class AvatarServiceTest {
     }
 
     @Test
-    void upload() {
+    void uploadTest() throws Exception {
+        when(studentServiceMock.findById(anyLong())).thenReturn(studentDto);
+        when(avatarRepositoryMock.findByStudentId(anyLong())).thenReturn(Optional.of(avatar));
+
+        out.upload(studentDto.getId(), avatarFileMock);
+
+        // Проверка, что файл был создан
+        Path filePath = Path.of(testFolderPath, "student_" + studentDto.getId() + ".png");
+        assertTrue(Files.exists(filePath));
+
+        verify(studentServiceMock, times(1)).findById(anyLong());
+        verify(avatarRepositoryMock, times(1)).findByStudentId(anyLong());
+    }
+
+    @Test
+    void uploadToIncorrectStudentIdTest() {
+        assertThrows(IncorrectIdException.class, () -> out.upload(0L, avatarFileMock));
+        assertThrows(IncorrectIdException.class, () -> out.upload(-1L, avatarFileMock));
+    }
+
+    @Test
+    void uploadNullAvatarTest() {
+        assertThrows(ParameterIsNullException.class, () -> out.upload(1L, null));
     }
 
     @Test
