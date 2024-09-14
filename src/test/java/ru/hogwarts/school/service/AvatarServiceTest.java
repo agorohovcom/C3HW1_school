@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.hogwarts.school.dto.AvatarDto;
 import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.exception.AvatarNotFoundException;
+import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.repository.AvatarRepository;
 
@@ -108,7 +109,35 @@ class AvatarServiceTest {
     }
 
     @Test
-    void findByStudentId() {
+    void findIncorrectIdTest() {
+        assertThrows(IncorrectIdException.class, () -> out.find(0));
+        assertThrows(IncorrectIdException.class, () -> out.find(-1));
+    }
+
+    @Test
+    void findByStudentIdTest() {
+        when(avatarRepositoryMock.findByStudentId(anyLong())).thenReturn(Optional.of(avatar));
+
+        AvatarDto actual = out.findByStudentId(1L);
+
+        assertNotNull(actual);
+        assertEquals(avatarDto, actual);
+    }
+
+    @Test
+    void findByStudentIdNotExistTest() {
+        when(avatarRepositoryMock.findByStudentId(anyLong())).thenReturn(Optional.of(new Avatar()));
+
+        AvatarDto actual = out.findByStudentId(1L);
+
+        assertNotNull(actual);
+        assertEquals(new AvatarDto(), actual);
+    }
+
+    @Test
+    void findByIncorrectStudentIdTest() {
+        assertThrows(IncorrectIdException.class, () -> out.findByStudentId(0));
+        assertThrows(IncorrectIdException.class, () -> out.findByStudentId(-1));
     }
 
     @Test
