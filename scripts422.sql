@@ -1,0 +1,2 @@
+create table cars (id serial primary key, brand varchar(100) not null, model varchar(100) not null, cost money default 100000);
+create table humans (id serial primary key, name varchar(100) not null, age smallint check (age > 0), driver_license boolean, car_id bigint references cars (id));

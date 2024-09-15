@@ -1,0 +1,2 @@
+select s.name as name, s.age as age, f.name as faculty from student s inner join faculty f ON s.faculty_id = f.id;
+select s.name as students_with_avatar, a.file_path as avatar_file_path from student s inner join avatar a on s.id = a.student_id;
