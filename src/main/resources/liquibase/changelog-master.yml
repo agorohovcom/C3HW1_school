@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/scripts/hw_4_3_indexes_and_liquibase.sql
