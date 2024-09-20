@@ -104,13 +104,13 @@ public class AvatarDto {
 
     @Override
     public String toString() {
+        int dataLength = data == null ? 0 : data.length;
         return "AvatarDto{" +
                 "id=" + id +
                 ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mediaType='" + mediaType + '\'' +
-//                ", data=" + Arrays.toString(data) +
-                ", data length=" + data.length +
+                ", data length=" + dataLength +
                 ", studentDto=" + studentDto +
                 '}';
     }

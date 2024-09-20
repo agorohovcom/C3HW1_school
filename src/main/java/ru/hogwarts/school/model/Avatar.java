@@ -80,13 +80,13 @@ public class Avatar {
 
     @Override
     public String toString() {
+        int dataLength = data == null ? 0 : data.length;
         return "Avatar{" +
                 "id=" + id +
                 ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mediaType='" + mediaType + '\'' +
-//                ", data=" + Arrays.toString(data) +
-                ", data length=" + data.length +
+                ", data length=" + dataLength +
                 ", student=" + student +
                 '}';
     }
