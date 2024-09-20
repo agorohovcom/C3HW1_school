@@ -2,7 +2,6 @@ package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 @Entity
@@ -86,7 +85,8 @@ public class Avatar {
                 ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mediaType='" + mediaType + '\'' +
-                ", data=" + Arrays.toString(data) +
+//                ", data=" + Arrays.toString(data) +
+                ", data length=" + data.length +
                 ", student=" + student +
                 '}';
     }

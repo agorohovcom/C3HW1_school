@@ -109,7 +109,8 @@ public class AvatarDto {
                 ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mediaType='" + mediaType + '\'' +
-                ", data=" + Arrays.toString(data) +
+//                ", data=" + Arrays.toString(data) +
+                ", data length=" + data.length +
                 ", studentDto=" + studentDto +
                 '}';
     }
