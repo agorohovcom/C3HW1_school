@@ -201,7 +201,7 @@ public class StudentService {
         return result;
     }
 
-    // нет тестов
+    // нет интеграционных тестов
     public String getAvgAge() {
         log.info("Method getAvgAge called");
 
@@ -210,7 +210,7 @@ public class StudentService {
                 .stream()
                 .mapToDouble(Student::getAge)
                 .average()
-                .orElse(0.0);
+                .orElseThrow(() -> new StudentNotFoundException("There are not students"));
 
         String result = String.format("%.2f", avgAge);
 

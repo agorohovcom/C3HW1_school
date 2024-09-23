@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -239,5 +240,44 @@ class StudentServiceTest {
         int actualSize = out.findNamesStartsWithAAscUpperCase().size();
 
         assertEquals(expectedSize, actualSize);
+    }
+
+    @Test
+    void getAvgAgeTest() {
+        Student studentNamedDik = new Student();
+        Student studentNamedAlbert = new Student();
+
+        studentNamedDik.setId(4L);
+        studentNamedDik.setName("Dik");
+        studentNamedDik.setAge(44);
+        studentNamedDik.setFaculty(faculty);
+
+        studentNamedAlbert.setId(5L);
+        studentNamedAlbert.setName("Albert");
+        studentNamedAlbert.setAge(55);
+        studentNamedAlbert.setFaculty(faculty);
+
+        when(studentRepositoryMock.findAll()).thenReturn(List.of(
+                student,
+                studentNamedDik,
+                studentNamedAlbert
+        ));
+
+        Double avgAge = Stream.of(student, studentNamedAlbert, studentNamedDik)
+                .mapToDouble(Student::getAge)
+                .average()
+                .getAsDouble();
+
+        String expected = String.format("%.2f", avgAge);
+        String actual = out.getAvgAge();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getAvgAgeWhenThereAreNoStudentsTest() {
+        when(studentRepositoryMock.findAll()).thenReturn(List.of());
+
+        assertThrows(StudentNotFoundException.class, () -> out.getAvgAge());
     }
 }
