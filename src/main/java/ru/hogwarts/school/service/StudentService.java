@@ -184,7 +184,6 @@ public class StudentService {
         return result;
     }
 
-    // нет интеграционных тестов
     public Collection<String> findNamesStartsWithAAscUpperCase() {
         log.info("Method findNamesStartsWithAAsc called");
 
@@ -201,7 +200,6 @@ public class StudentService {
         return result;
     }
 
-    // нет интеграционных тестов
     public String getAvgAge() {
         log.info("Method getAvgAge called");
 

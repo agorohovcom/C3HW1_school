@@ -279,4 +279,34 @@ class StudentControllerWebMvcTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
+
+    @Test
+    void findNamesStartsWithAAscUpperCaseTest() throws Exception {
+        when(studentRepository.findAll()).thenReturn(List.of(student));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/find_names_starts_with_A_asc_upper_case")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void getAvgAgeTest() throws Exception {
+        Student anotherStudent = new Student();
+        anotherStudent.setId(2L);
+        anotherStudent.setName("Test student");
+        anotherStudent.setAge(45);
+        anotherStudent.setFaculty(faculty);
+
+        when(studentRepository.findAll()).thenReturn(List.of(student, anotherStudent));
+
+        String expected = String.format("%.2f", (student.getAge() + anotherStudent.getAge()) / 2d);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/get_avg_age")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expected));
+    }
 }

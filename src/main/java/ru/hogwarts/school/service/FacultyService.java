@@ -138,7 +138,6 @@ public class FacultyService {
         return result;
     }
 
-    // нет интеграционных тестов
     public String getLongestName() {
         log.info("Method getLongestName called");
 

@@ -365,4 +365,29 @@ class StudentControllerRestTemplateTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(Objects.requireNonNull(response.getBody()).size()).isBetween(0, 5);
     }
+
+    @Test
+    void findNamesStartsWithAAscUpperCaseTest() {
+        ResponseEntity<Collection<String>> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/find_names_starts_with_A_asc_upper_case",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<String>>() {
+                }
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void getAvgAgeTest() {
+        ResponseEntity<String> response = restTemplate.exchange(
+                "http://localhost:" + port + "/student/get_avg_age",
+                HttpMethod.GET,
+                null,
+                String.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 }
