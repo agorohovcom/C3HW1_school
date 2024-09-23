@@ -184,8 +184,8 @@ public class StudentService {
         return result;
     }
 
-    // нет тестов
-    public Collection<String> findNamesStartsWithAAsc() {
+    // нет интеграционных тестов
+    public Collection<String> findNamesStartsWithAAscUpperCase() {
         log.info("Method findNamesStartsWithAAsc called");
 
         List<String> result = repository

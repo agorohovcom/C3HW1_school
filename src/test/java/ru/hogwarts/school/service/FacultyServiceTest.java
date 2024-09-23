@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.hogwarts.school.dto.FacultyDto;
 import ru.hogwarts.school.dto.StudentDto;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.model.Faculty;
@@ -43,7 +44,6 @@ class FacultyServiceTest {
         studentDto = new StudentDto(1L, "StudentName", 20);
         student = StudentDto.toEntity(studentDto);
         student.setFaculty(faculty);
-//        faculty.setStudents(List.of(student));
     }
 
     @Test
@@ -139,7 +139,6 @@ class FacultyServiceTest {
         assertEquals(1, result.size());
         verify(facultyRepositoryMock, times(1)).findByNameIgnoreCaseOrColorIgnoreCase(anyString(), anyString());
 
-
         assertThrows(ParameterIsNullException.class, () -> out.getByNameOrColorIgnoreCase(null, "Color"));
         assertThrows(ParameterIsNullException.class, () -> out.getByNameOrColorIgnoreCase("FacultyName", null));
     }
@@ -183,5 +182,27 @@ class FacultyServiceTest {
         assertEquals(facultyDto.getColor(), result.getColor());
         assertEquals(facultyDto.getStudents(), result.getStudents());
         verify(facultyRepositoryMock, times(1)).findRandom();
+    }
+
+    @Test
+    void getLongestNameTest() {
+        Faculty facultyWithLongestName = new Faculty();
+        facultyWithLongestName.setId(faculty.getId() + 1);
+        facultyWithLongestName.setName(faculty.getName() + "_EndOfLongName");
+        facultyWithLongestName.setColor("test color");
+
+        when(facultyRepositoryMock.findAll()).thenReturn(List.of(facultyWithLongestName, faculty));
+
+        String expected = facultyWithLongestName.getName();
+        String actual = out.getLongestName();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getLongestNameWhenThereAreNoFacultyTest() {
+        when(facultyRepositoryMock.findAll()).thenReturn(List.of());
+
+        assertThrows(FacultyNotFoundException.class, () -> out.getLongestName());
     }
 }

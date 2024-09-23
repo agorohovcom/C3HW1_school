@@ -92,9 +92,9 @@ public class StudentController {
         return ResponseEntity.ok(service.findFileLastStudents());
     }
 
-    @GetMapping("/find_names_starts_with_A_asc")
-    public ResponseEntity<Collection<String>> findNamesStartsWithAAsc() {
-        return ResponseEntity.ok(service.findNamesStartsWithAAsc());
+    @GetMapping("/find_names_starts_with_A_asc_upper_case")
+    public ResponseEntity<Collection<String>> findNamesStartsWithAAscUpperCase() {
+        return ResponseEntity.ok(service.findNamesStartsWithAAscUpperCase());
     }
 
     @GetMapping("/get_avg_age")
