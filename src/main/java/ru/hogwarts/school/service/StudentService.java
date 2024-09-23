@@ -144,7 +144,8 @@ public class StudentService {
         log.info("Method findFacultyByStudentId called with parameters: {}", studentId);
 
         idParameterChecker(studentId);
-        Student student = repository.findById(studentId).orElseThrow(() -> new StudentNotFoundException("Студент с id " + studentId + " не найден"));
+        Student student = repository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException("Студент с id " + studentId + " не найден"));
         FacultyDto result = FacultyDto.toDto(student.getFaculty());
 
         log.info("Method findFacultyByStudentId completed with result: {}", result);
