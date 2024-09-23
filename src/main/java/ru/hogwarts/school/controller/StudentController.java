@@ -91,4 +91,14 @@ public class StudentController {
     public ResponseEntity<Collection<StudentDto>> findFileLastStudents() {
         return ResponseEntity.ok(service.findFileLastStudents());
     }
+
+    @GetMapping("/find_names_starts_with_A_asc")
+    public ResponseEntity<Collection<String>> findNamesStartsWithAAsc() {
+        return ResponseEntity.ok(service.findNamesStartsWithAAsc());
+    }
+
+    @GetMapping("/get_avg_age")
+    public ResponseEntity<String> getAvgAge() {
+        return ResponseEntity.ok(service.getAvgAge());
+    }
 }

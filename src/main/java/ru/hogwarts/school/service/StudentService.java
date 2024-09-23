@@ -15,6 +15,7 @@ import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -180,6 +181,40 @@ public class StudentService {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         log.info("Method findFileLastStudents completed with result size: {}", result.size());
+        return result;
+    }
+
+    // нет тестов
+    public Collection<String> findNamesStartsWithAAsc() {
+        log.info("Method findNamesStartsWithAAsc called");
+
+        List<String> result = repository
+                .findAll()
+                .stream()
+                .filter(s -> s.getName().startsWith("A"))
+                .map(s -> s.getName().toUpperCase())
+                .sorted()
+                .distinct()
+                .toList();
+
+        log.info("Method findNamesStartsWithAAsc completed with result size: {}", result.size());
+        return result;
+    }
+
+    // нет тестов
+    public String getAvgAge() {
+        log.info("Method getAvgAge called");
+
+        Double avgAge = repository
+                .findAll()
+                .stream()
+                .mapToDouble(Student::getAge)
+                .average()
+                .orElse(0.0);
+
+        String result = String.format("%.2f", avgAge);
+
+        log.info("Method getAvgAge completed with result: {}", result);
         return result;
     }
 

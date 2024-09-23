@@ -13,6 +13,7 @@ import ru.hogwarts.school.repository.FacultyRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -134,6 +135,22 @@ public class FacultyService {
         Collection<StudentDto> result = facultyDto.getStudents();
 
         log.info("Method findStudentsByFacultyName completed with result size: {}", result.size());
+        return result;
+    }
+
+    // нет тестов
+    public String getLongestName() {
+        log.info("Method getLongestName called");
+
+        String result = repository
+                .findAll()
+                .stream()
+                .map(Faculty::getName)
+                .max(Comparator.comparingInt(String::length))
+                .orElseThrow(() -> new FacultyNotFoundException("Faculty not found"));
+
+
+        log.info("Method getLongestName completed with result: {}", result);
         return result;
     }
 
