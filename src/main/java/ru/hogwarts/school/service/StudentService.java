@@ -15,6 +15,7 @@ import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -144,7 +145,8 @@ public class StudentService {
         log.info("Method findFacultyByStudentId called with parameters: {}", studentId);
 
         idParameterChecker(studentId);
-        Student student = repository.findById(studentId).orElseThrow(() -> new StudentNotFoundException("Студент с id " + studentId + " не найден"));
+        Student student = repository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException("Студент с id " + studentId + " не найден"));
         FacultyDto result = FacultyDto.toDto(student.getFaculty());
 
         log.info("Method findFacultyByStudentId completed with result: {}", result);
@@ -179,6 +181,38 @@ public class StudentService {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         log.info("Method findFileLastStudents completed with result size: {}", result.size());
+        return result;
+    }
+
+    public Collection<String> findNamesStartsWithAAscUpperCase() {
+        log.info("Method findNamesStartsWithAAsc called");
+
+        List<String> result = repository
+                .findAll()
+                .stream()
+                .filter(s -> s.getName().startsWith("A"))
+                .map(s -> s.getName().toUpperCase())
+                .sorted()
+                .distinct()
+                .toList();
+
+        log.info("Method findNamesStartsWithAAsc completed with result size: {}", result.size());
+        return result;
+    }
+
+    public String getAvgAge() {
+        log.info("Method getAvgAge called");
+
+        Double avgAge = repository
+                .findAll()
+                .stream()
+                .mapToDouble(Student::getAge)
+                .average()
+                .orElseThrow(() -> new StudentNotFoundException("There are not students"));
+
+        String result = String.format("%.2f", avgAge);
+
+        log.info("Method getAvgAge completed with result: {}", result);
         return result;
     }
 

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.controller.FacultyController;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
@@ -23,8 +24,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = FacultyController.class)
 class FacultyControllerWebMvcTest {
@@ -213,5 +213,33 @@ class FacultyControllerWebMvcTest {
                                 faculty.getName()))
                 .andExpect(status().isNotFound());
 
+    }
+
+    @Test
+    void getLongestNameTest() throws Exception {
+        long id = 2L;
+        String facultyName = faculty.getName() + "_EndOfLongestName";
+        String facultyColor = "test color";
+
+        Faculty facultyWithLongestName = new Faculty();
+        facultyWithLongestName.setId(id);
+        facultyWithLongestName.setName(facultyName);
+        facultyWithLongestName.setColor(facultyColor);
+
+        when(facultyRepository.findAll()).thenReturn(List.of(faculty, facultyWithLongestName));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/faculty/get_longest_name")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(facultyWithLongestName.getName()));
+
+        // тест получения самого длинного имени факультета когда нет факультетов
+        when(facultyRepository.findAll()).thenThrow(FacultyNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/faculty/get_longest_name")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

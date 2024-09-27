@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -178,5 +179,105 @@ class StudentServiceTest {
 
         assertThrows(IncorrectIdException.class, () -> out.findFacultyByStudentId(-1));
         assertThrows(IncorrectIdException.class, () -> out.findFacultyByStudentId(0));
+    }
+
+    @Test
+    void findNamesStartsWithAAscUpperCaseTest() {
+        Student studentNamedAaron = new Student();
+        Student studentNamedAaron2 = new Student();
+        Student studentNamedDik = new Student();
+        Student studentNamedAlbert = new Student();
+        Student studentNamedGennadiy = new Student();
+
+        studentNamedAaron.setId(2L);
+        studentNamedAaron.setName("Aaron");
+        studentNamedAaron.setAge(22);
+        studentNamedAaron.setFaculty(faculty);
+
+        studentNamedAaron2.setId(3L);
+        studentNamedAaron2.setName("Aaron");
+        studentNamedAaron2.setAge(33);
+        studentNamedAaron2.setFaculty(faculty);
+
+        studentNamedDik.setId(4L);
+        studentNamedDik.setName("Dik");
+        studentNamedDik.setAge(44);
+        studentNamedDik.setFaculty(faculty);
+
+        studentNamedAlbert.setId(5L);
+        studentNamedAlbert.setName("Albert");
+        studentNamedAlbert.setAge(55);
+        studentNamedAlbert.setFaculty(faculty);
+
+        studentNamedGennadiy.setId(6L);
+        studentNamedGennadiy.setName("Gennadiy");
+        studentNamedGennadiy.setAge(66);
+        studentNamedGennadiy.setFaculty(faculty);
+
+        when(studentRepositoryMock.findAll()).thenReturn(List.of(
+                student,
+                studentNamedAaron,
+                studentNamedAaron2,
+                studentNamedDik,
+                studentNamedAlbert,
+                studentNamedGennadiy
+        ));
+
+        Collection<String> expected = List.of(
+                studentNamedAaron.getName().toUpperCase(),
+                studentNamedAlbert.getName().toUpperCase()
+        );
+        Collection<String> actual = out.findNamesStartsWithAAscUpperCase();
+
+        assertIterableEquals(expected, actual);
+    }
+
+    @Test
+    void findNamesStartsWithAAscUpperCaseWhenThereAreNoStudentsTest() {
+        when(studentRepositoryMock.findAll()).thenReturn(List.of());
+
+        int expectedSize = 0;
+        int actualSize = out.findNamesStartsWithAAscUpperCase().size();
+
+        assertEquals(expectedSize, actualSize);
+    }
+
+    @Test
+    void getAvgAgeTest() {
+        Student studentNamedDik = new Student();
+        Student studentNamedAlbert = new Student();
+
+        studentNamedDik.setId(4L);
+        studentNamedDik.setName("Dik");
+        studentNamedDik.setAge(44);
+        studentNamedDik.setFaculty(faculty);
+
+        studentNamedAlbert.setId(5L);
+        studentNamedAlbert.setName("Albert");
+        studentNamedAlbert.setAge(55);
+        studentNamedAlbert.setFaculty(faculty);
+
+        when(studentRepositoryMock.findAll()).thenReturn(List.of(
+                student,
+                studentNamedDik,
+                studentNamedAlbert
+        ));
+
+        Double avgAge = Stream.of(student, studentNamedAlbert, studentNamedDik)
+                .mapToDouble(Student::getAge)
+                .average()
+                .getAsDouble();
+
+        String expected = String.format("%.2f", avgAge);
+        String actual = out.getAvgAge();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void getAvgAgeWhenThereAreNoStudentsTest() {
+        when(studentRepositoryMock.findAll()).thenReturn(List.of());
+
+        assertThrows(StudentNotFoundException.class, () -> out.getAvgAge());
     }
 }

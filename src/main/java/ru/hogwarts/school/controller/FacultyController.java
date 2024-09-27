@@ -66,4 +66,9 @@ public class FacultyController {
     public ResponseEntity<Collection<StudentDto>> findStudentsByFacultyName(@RequestParam String facultyName) {
         return ResponseEntity.ok(service.findStudentsByFacultyName(facultyName));
     }
+
+    @GetMapping("/get_longest_name")
+    public ResponseEntity<String> getLongestName() {
+        return ResponseEntity.ok(service.getLongestName());
+    }
 }

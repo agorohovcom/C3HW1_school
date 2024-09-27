@@ -278,4 +278,14 @@ public class FacultyControllerRestTemplateTest {
                 ))
                 .isNotNull();
     }
+
+    @Test
+    void getLongestName() {
+        Assertions
+                .assertThat(restTemplate.getForObject(
+                        "http://localhost:" + port + "/faculty/get_longest_name",
+                        String.class
+                ))
+                .isNotNull();
+    }
 }
