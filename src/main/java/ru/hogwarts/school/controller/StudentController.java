@@ -101,4 +101,10 @@ public class StudentController {
     public ResponseEntity<String> getAvgAge() {
         return ResponseEntity.ok(service.getAvgAge());
     }
+
+    @GetMapping("/print-parallel")
+    public ResponseEntity<Void> printParallel() {
+        service.printParallel();
+        return ResponseEntity.ok().build();
+    }
 }

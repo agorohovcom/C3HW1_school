@@ -233,4 +233,29 @@ public class StudentService {
             throw new IncorrectAgeException("Age can't be less than 1");
         }
     }
+
+    public void printParallel() {
+        List<StudentDto> students = repository
+                .findAll()
+                .stream()
+                .map(StudentDto::toDto)
+                .toList();
+
+        if (students.size() < 6) {
+            throw new RuntimeException("Too few students for method printParallel");
+        }
+
+        System.out.println(students.get(0).getName());
+        System.out.println(students.get(1).getName());
+
+        new Thread(() -> {
+            System.out.println(students.get(2).getName());
+            System.out.println(students.get(3).getName());
+        }).start();
+
+        new Thread(() -> {
+            System.out.println(students.get(4).getName());
+            System.out.println(students.get(5).getName());
+        }).start();
+    }
 }
