@@ -1,6 +1,5 @@
 package ru.hogwarts.school.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,18 +11,16 @@ import ru.hogwarts.school.exception.IncorrectAgeException;
 import ru.hogwarts.school.exception.IncorrectIdException;
 import ru.hogwarts.school.exception.ParameterIsNullException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
-import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static ru.hogwarts.school.constants.Constants.*;
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
@@ -36,46 +33,32 @@ class StudentServiceTest {
     @Mock
     private FacultyService facultyServiceMock;
 
-    private StudentDto studentDto;
-    private FacultyDto facultyDto;
-    private Student student;
-    private Faculty faculty;
-
-    @BeforeEach
-    void setUp() {
-        facultyDto = new FacultyDto(1L, "FacultyName", "Color", new ArrayList<>());
-        faculty = FacultyDto.toEntity(facultyDto);
-        studentDto = new StudentDto(1L, "StudentName", 20);
-        student = StudentDto.toEntity(studentDto);
-        student.setFaculty(faculty);
-    }
-
     @Test
     void createTest() {
-        when(facultyServiceMock.findByName(anyString())).thenReturn(facultyDto);
-        when(studentRepositoryMock.save(any(Student.class))).thenReturn(student);
+        when(facultyServiceMock.findByName(anyString())).thenReturn(FACULTY_DTO);
+        when(studentRepositoryMock.save(any(Student.class))).thenReturn(STUDENT_1_SAM);
 
-        StudentDto result = out.create(studentDto, "FacultyName");
+        StudentDto result = out.create(STUDENT_DTO_1_SAM, FACULTY.getName());
 
         assertNotNull(result);
-        assertEquals(studentDto.getName(), result.getName());
-        assertEquals(studentDto.getAge(), result.getAge());
+        assertEquals(STUDENT_DTO_1_SAM.getName(), result.getName());
+        assertEquals(STUDENT_DTO_1_SAM.getAge(), result.getAge());
         verify(studentRepositoryMock, times(1)).save(any(Student.class));
 
-        assertThrows(ParameterIsNullException.class, () -> out.create(null, "FacultyName"));
-        assertThrows(ParameterIsNullException.class, () -> out.create(studentDto, null));
+        assertThrows(ParameterIsNullException.class, () -> out.create(null, FACULTY.getName()));
+        assertThrows(ParameterIsNullException.class, () -> out.create(STUDENT_DTO_1_SAM, null));
     }
 
     @Test
     void createWithRandomFacultyTest() {
-        when(facultyServiceMock.findRandom()).thenReturn(facultyDto);
-        when(studentRepositoryMock.save(any(Student.class))).thenReturn(student);
+        when(facultyServiceMock.findRandom()).thenReturn(FACULTY_DTO);
+        when(studentRepositoryMock.save(any(Student.class))).thenReturn(STUDENT_1_SAM);
 
-        StudentDto result = out.createWithRandomFaculty(studentDto);
+        StudentDto result = out.createWithRandomFaculty(STUDENT_DTO_1_SAM);
 
         assertNotNull(result);
-        assertEquals(studentDto.getName(), result.getName());
-        assertEquals(studentDto.getAge(), result.getAge());
+        assertEquals(STUDENT_DTO_1_SAM.getName(), result.getName());
+        assertEquals(STUDENT_DTO_1_SAM.getAge(), result.getAge());
         verify(studentRepositoryMock, times(1)).save(any(Student.class));
 
         assertThrows(ParameterIsNullException.class, () -> out.createWithRandomFaculty(null));
@@ -83,13 +66,13 @@ class StudentServiceTest {
 
     @Test
     void findByIdTest() {
-        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(student));
+        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(STUDENT_1_SAM));
 
         StudentDto result = out.findById(1L);
 
         assertNotNull(result);
-        assertEquals(studentDto.getName(), result.getName());
-        assertEquals(studentDto.getAge(), result.getAge());
+        assertEquals(STUDENT_DTO_1_SAM.getName(), result.getName());
+        assertEquals(STUDENT_DTO_1_SAM.getAge(), result.getAge());
         verify(studentRepositoryMock, times(1)).findById(1L);
 
         when(studentRepositoryMock.findById(1L)).thenReturn(Optional.empty());
@@ -100,14 +83,14 @@ class StudentServiceTest {
 
     @Test
     void editTest() {
-        when(studentRepositoryMock.save(any(Student.class))).thenReturn(student);
-        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(student));
+        when(studentRepositoryMock.save(any(Student.class))).thenReturn(STUDENT_1_SAM);
+        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(STUDENT_1_SAM));
 
-        StudentDto result = out.edit(studentDto);
+        StudentDto result = out.edit(STUDENT_DTO_1_SAM);
 
         assertNotNull(result);
-        assertEquals(studentDto.getName(), result.getName());
-        assertEquals(studentDto.getAge(), result.getAge());
+        assertEquals(STUDENT_DTO_1_SAM.getName(), result.getName());
+        assertEquals(STUDENT_DTO_1_SAM.getAge(), result.getAge());
         verify(studentRepositoryMock, times(1)).save(any(Student.class));
 
         assertThrows(ParameterIsNullException.class, () -> out.edit(null));
@@ -115,7 +98,7 @@ class StudentServiceTest {
 
     @Test
     void deleteTest() {
-        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(student));
+        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(STUDENT_1_SAM));
 
         out.delete(1L);
 
@@ -127,7 +110,7 @@ class StudentServiceTest {
 
     @Test
     void getAllTest() {
-        when(studentRepositoryMock.findAll()).thenReturn(List.of(student));
+        when(studentRepositoryMock.findAll()).thenReturn(List.of(STUDENT_1_SAM));
 
         Collection<StudentDto> result = out.getAll();
 
@@ -138,9 +121,9 @@ class StudentServiceTest {
 
     @Test
     void getAllByAgeTest() {
-        when(studentRepositoryMock.findAllByAge(anyInt())).thenReturn(List.of(student));
+        when(studentRepositoryMock.findAllByAge(anyInt())).thenReturn(List.of(STUDENT_1_SAM));
 
-        Collection<StudentDto> result = out.getAllByAge(20);
+        Collection<StudentDto> result = out.getAllByAge(STUDENT_1_SAM.getAge());
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -152,12 +135,12 @@ class StudentServiceTest {
 
     @Test
     void findByAgeBetweenTest() {
-        when(studentRepositoryMock.findByAgeBetween(anyInt(), anyInt())).thenReturn(List.of(student));
+        when(studentRepositoryMock.findByAgeBetween(anyInt(), anyInt())).thenReturn(List.of(STUDENT_1_SAM, STUDENT_2_AARON));
 
         Collection<StudentDto> result = out.findByAgeBetween(5, 50);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         verify(studentRepositoryMock, times(1)).findByAgeBetween(anyInt(), anyInt());
 
         assertThrows(IncorrectAgeException.class, () -> out.findByAgeBetween(0, 24));
@@ -168,14 +151,14 @@ class StudentServiceTest {
 
     @Test
     void findFacultyByStudentIdTest() {
-        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(student));
+        when(studentRepositoryMock.findById(anyLong())).thenReturn(Optional.ofNullable(STUDENT_1_SAM));
 
         FacultyDto result = out.findFacultyByStudentId(1L);
 
         assertNotNull(result);
-        assertEquals(facultyDto.getName(), result.getName());
-        assertEquals(facultyDto.getColor(), result.getColor());
-        assertEquals(facultyDto.getStudents(), result.getStudents());
+        assertEquals(FACULTY_DTO.getName(), result.getName());
+        assertEquals(FACULTY_DTO.getColor(), result.getColor());
+        assertEquals(FACULTY_DTO.getStudents(), result.getStudents());
 
         assertThrows(IncorrectIdException.class, () -> out.findFacultyByStudentId(-1));
         assertThrows(IncorrectIdException.class, () -> out.findFacultyByStudentId(0));
@@ -183,49 +166,18 @@ class StudentServiceTest {
 
     @Test
     void findNamesStartsWithAAscUpperCaseTest() {
-        Student studentNamedAaron = new Student();
-        Student studentNamedAaron2 = new Student();
-        Student studentNamedDik = new Student();
-        Student studentNamedAlbert = new Student();
-        Student studentNamedGennadiy = new Student();
-
-        studentNamedAaron.setId(2L);
-        studentNamedAaron.setName("Aaron");
-        studentNamedAaron.setAge(22);
-        studentNamedAaron.setFaculty(faculty);
-
-        studentNamedAaron2.setId(3L);
-        studentNamedAaron2.setName("Aaron");
-        studentNamedAaron2.setAge(33);
-        studentNamedAaron2.setFaculty(faculty);
-
-        studentNamedDik.setId(4L);
-        studentNamedDik.setName("Dik");
-        studentNamedDik.setAge(44);
-        studentNamedDik.setFaculty(faculty);
-
-        studentNamedAlbert.setId(5L);
-        studentNamedAlbert.setName("Albert");
-        studentNamedAlbert.setAge(55);
-        studentNamedAlbert.setFaculty(faculty);
-
-        studentNamedGennadiy.setId(6L);
-        studentNamedGennadiy.setName("Gennadiy");
-        studentNamedGennadiy.setAge(66);
-        studentNamedGennadiy.setFaculty(faculty);
-
         when(studentRepositoryMock.findAll()).thenReturn(List.of(
-                student,
-                studentNamedAaron,
-                studentNamedAaron2,
-                studentNamedDik,
-                studentNamedAlbert,
-                studentNamedGennadiy
+                STUDENT_1_SAM,
+                STUDENT_2_AARON,
+                STUDENT_3_AARON,
+                STUDENT_4_DIK,
+                STUDENT_5_ALBERT,
+                STUDENT_6_GENNADIY
         ));
 
         Collection<String> expected = List.of(
-                studentNamedAaron.getName().toUpperCase(),
-                studentNamedAlbert.getName().toUpperCase()
+                STUDENT_DTO_2_AARON.getName().toUpperCase(),
+                STUDENT_DTO_5_ALBERT.getName().toUpperCase()
         );
         Collection<String> actual = out.findNamesStartsWithAAscUpperCase();
 
@@ -244,26 +196,16 @@ class StudentServiceTest {
 
     @Test
     void getAvgAgeTest() {
-        Student studentNamedDik = new Student();
-        Student studentNamedAlbert = new Student();
+        List<Student> students = List.of(
+                STUDENT_1_SAM,
+                STUDENT_4_DIK,
+                STUDENT_5_ALBERT
+        );
 
-        studentNamedDik.setId(4L);
-        studentNamedDik.setName("Dik");
-        studentNamedDik.setAge(44);
-        studentNamedDik.setFaculty(faculty);
+        when(studentRepositoryMock.findAll()).thenReturn(students);
 
-        studentNamedAlbert.setId(5L);
-        studentNamedAlbert.setName("Albert");
-        studentNamedAlbert.setAge(55);
-        studentNamedAlbert.setFaculty(faculty);
-
-        when(studentRepositoryMock.findAll()).thenReturn(List.of(
-                student,
-                studentNamedDik,
-                studentNamedAlbert
-        ));
-
-        Double avgAge = Stream.of(student, studentNamedAlbert, studentNamedDik)
+        Double avgAge = students
+                .stream()
                 .mapToDouble(Student::getAge)
                 .average()
                 .getAsDouble();
@@ -279,5 +221,51 @@ class StudentServiceTest {
         when(studentRepositoryMock.findAll()).thenReturn(List.of());
 
         assertThrows(StudentNotFoundException.class, () -> out.getAvgAge());
+    }
+
+    @Test
+    void printParallelTest() {
+        List<Student> students = List.of(
+                STUDENT_1_SAM,
+                STUDENT_2_AARON,
+                STUDENT_3_AARON,
+                STUDENT_4_DIK,
+                STUDENT_5_ALBERT,
+                STUDENT_6_GENNADIY
+        );
+
+        when(studentRepositoryMock.findAll()).thenReturn(students);
+
+        out.printParallel();
+        verify(studentRepositoryMock, times(1)).findAll();
+    }
+
+    @Test
+    void printParallelNotEnoughStudentsTest() {
+        when(studentRepositoryMock.findAll()).thenReturn(List.of(STUDENT_1_SAM));
+        assertThrows(RuntimeException.class, () -> out.printParallel());
+    }
+
+    @Test
+    void printSynchronizedTest() {
+        List<Student> students = List.of(
+                STUDENT_1_SAM,
+                STUDENT_2_AARON,
+                STUDENT_3_AARON,
+                STUDENT_4_DIK,
+                STUDENT_5_ALBERT,
+                STUDENT_6_GENNADIY
+        );
+
+        when(studentRepositoryMock.findAll()).thenReturn(students);
+
+        out.printSynchronized();
+        verify(studentRepositoryMock, times(1)).findAll();
+    }
+
+    @Test
+    void printSynchronizedNotEnoughStudentsTest() {
+        when(studentRepositoryMock.findAll()).thenReturn(List.of(STUDENT_1_SAM));
+        assertThrows(RuntimeException.class, () -> out.printSynchronized());
     }
 }
