@@ -216,6 +216,70 @@ public class StudentService {
         return result;
     }
 
+    public void printParallel() {
+        log.info("Method printParallel called");
+
+        List<StudentDto> students = repository
+                .findAll()
+                .stream()
+                .map(StudentDto::toDto)
+                .limit(6)
+                .toList();
+
+        if (students.size() < 6) {
+            throw new RuntimeException("Too few students for method printParallel");
+        }
+
+        System.out.println(students.get(0).getName());
+        System.out.println(students.get(1).getName());
+
+        new Thread(() -> {
+            System.out.println(students.get(2).getName());
+            System.out.println(students.get(3).getName());
+        }).start();
+
+        new Thread(() -> {
+            System.out.println(students.get(4).getName());
+            System.out.println(students.get(5).getName());
+        }).start();
+
+        log.info("Method printParallel completed");
+    }
+
+    public void printSynchronized() {
+        log.info("Method printSynchronized called");
+
+        List<StudentDto> students = repository
+                .findAll()
+                .stream()
+                .map(StudentDto::toDto)
+                .limit(6)
+                .toList();
+
+        if (students.size() < 6) {
+            throw new RuntimeException("Too few students for method printSynchronized");
+        }
+
+        System.out.println(students.get(0).getName());
+        System.out.println(students.get(1).getName());
+
+        synchronizedMethod(students);
+
+        log.info("Method printSynchronized completed");
+    }
+
+    private synchronized void synchronizedMethod(List<StudentDto> students) {
+        new Thread(() -> {
+            System.out.println(students.get(2).getName());
+            System.out.println(students.get(3).getName());
+        }).start();
+
+        new Thread(() -> {
+            System.out.println(students.get(4).getName());
+            System.out.println(students.get(5).getName());
+        }).start();
+    }
+
     private void notNullParameterChecker(Object o) {
         if (o == null) {
             throw new ParameterIsNullException("Parameter can't be null");

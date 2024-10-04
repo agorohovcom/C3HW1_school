@@ -54,8 +54,9 @@ public class Student {
         return faculty;
     }
 
-    public void setFaculty(Faculty faculty) {
+    public Student setFaculty(Faculty faculty) {
         this.faculty = faculty;
+        return this;
     }
 
     @Override

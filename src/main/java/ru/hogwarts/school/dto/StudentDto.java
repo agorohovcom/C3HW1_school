@@ -79,8 +79,9 @@ public class StudentDto {
         return facultyDto;
     }
 
-    public void setFacultyDto(FacultyDto facultyDto) {
+    public StudentDto setFacultyDto(FacultyDto facultyDto) {
         this.facultyDto = facultyDto;
+        return this;
     }
 
     @Override
